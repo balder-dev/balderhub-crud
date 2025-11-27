@@ -47,7 +47,7 @@ class ScenarioSingleCreate(balder.Scenario):
         self.DeviceUnderTest.list_reader.load()
         all_items_before = self.DeviceUnderTest.list_reader.collect()
         # make sure that all others identification values are NOT_DEFINABLE (in `all_items_before`)
-        assert all_items_before.has_unique_identifier()
+        assert all_items_before.has_unique_elements()
         assert NOT_DEFINABLE not in all_items_before.get_all_unique_identifier()
 
         self.DeviceUnderTest.creator.load()
@@ -65,7 +65,7 @@ class ScenarioSingleCreate(balder.Scenario):
 
         self.DeviceUnderTest.list_reader.load()
         all_items_after = self.DeviceUnderTest.list_reader.collect()
-        assert all_items_after.has_unique_identifier()
+        assert all_items_after.has_unique_elements()
         assert NOT_DEFINABLE not in all_items_after.get_all_unique_identifier()
 
         assert len(all_items_before) == len(all_items_after) - 1
@@ -100,7 +100,7 @@ class ScenarioSingleCreate(balder.Scenario):
         self.DeviceUnderTest.list_reader.load()
         all_items_before = self.DeviceUnderTest.list_reader.collect()
         # make sure that all others identification values are NOT_DEFINABLE (in `all_items_before`)
-        assert all_items_before.has_unique_identifier()
+        assert all_items_before.has_unique_elements()
         assert NOT_DEFINABLE not in all_items_before.get_all_unique_identifier()
 
         self.DeviceUnderTest.creator.load()
@@ -117,7 +117,7 @@ class ScenarioSingleCreate(balder.Scenario):
 
         self.DeviceUnderTest.list_reader.load()
         all_items_after = self.DeviceUnderTest.list_reader.collect()
-        assert all_items_after.has_unique_identifier()
+        assert all_items_after.has_unique_elements()
         assert NOT_DEFINABLE not in all_items_after.get_all_unique_identifier()
 
         # no item should be created
@@ -188,7 +188,7 @@ class ScenarioSingleCreate(balder.Scenario):
         self.DeviceUnderTest.list_reader.load()
         all_items_before = self.DeviceUnderTest.list_reader.collect()
         # make sure that all others identification values are NOT_DEFINABLE (in `all_items_before`)
-        assert all_items_before.has_unique_identifier()
+        assert all_items_before.has_unique_elements()
         assert NOT_DEFINABLE not in all_items_before.get_all_unique_identifier()
 
         data_to_fill = copy.deepcopy(valid_example.data)
@@ -210,7 +210,7 @@ class ScenarioSingleCreate(balder.Scenario):
 
         self.DeviceUnderTest.list_reader.load()
         all_items_after = self.DeviceUnderTest.list_reader.collect()
-        assert all_items_after.has_unique_identifier()
+        assert all_items_after.has_unique_elements()
         assert NOT_DEFINABLE not in all_items_after.get_all_unique_identifier()
 
         assert len(all_items_before) == len(all_items_after) - 1
@@ -269,7 +269,7 @@ class ScenarioSingleCreate(balder.Scenario):
         self.DeviceUnderTest.list_reader.load()
         all_items_before = self.DeviceUnderTest.list_reader.collect()
         # make sure that all others identification values are NOT_DEFINABLE (in `all_items_before`)
-        assert all_items_before.has_unique_identifier()
+        assert all_items_before.has_unique_elements()
         assert NOT_DEFINABLE not in all_items_before.get_all_unique_identifier()
 
         data_to_fill = copy.deepcopy(valid_example.data)
@@ -291,7 +291,7 @@ class ScenarioSingleCreate(balder.Scenario):
 
         self.DeviceUnderTest.list_reader.load()
         all_items_after = self.DeviceUnderTest.list_reader.collect()
-        assert all_items_after.has_unique_identifier()
+        assert all_items_after.has_unique_elements()
         assert NOT_DEFINABLE not in all_items_after.get_all_unique_identifier()
 
         assert len(all_items_before) == len(all_items_after) - 1
@@ -340,7 +340,7 @@ class ScenarioSingleCreate(balder.Scenario):
         self.DeviceUnderTest.list_reader.load()
         all_items_before = self.DeviceUnderTest.list_reader.collect()
         # make sure that all others identification values are NOT_DEFINABLE (in `all_items_before`)
-        assert all_items_before.has_unique_identifier()
+        assert all_items_before.has_unique_elements()
         assert NOT_DEFINABLE not in all_items_before.get_all_unique_identifier()
 
         self.DeviceUnderTest.creator.load()
@@ -363,7 +363,7 @@ class ScenarioSingleCreate(balder.Scenario):
 
         self.DeviceUnderTest.list_reader.load()
         all_items_after = self.DeviceUnderTest.list_reader.collect()
-        assert all_items_after.has_unique_identifier()
+        assert all_items_after.has_unique_elements()
         assert NOT_DEFINABLE not in all_items_after.get_all_unique_identifier()
 
         # no item should be created
