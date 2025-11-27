@@ -38,21 +38,20 @@ class SingleDataReaderFeature(scenario_features.SingleDataReaderFeature):
             if self.is_non_collectable_field(cur_field_name):
                 # ignore - is already NOT_DEFINABLE
                 continue
-            elif cur_field_name in cur_item_mapping.keys():
-                cur_callback = cur_item_mapping[cur_field_name]
-                try:
-                    element_data = cur_callback.execute(
-                        self,
-                        cur_field_name,
-                        element_container,
-                        already_collected_data=new_dataclass)
-                    new_dataclass.set_field_value(cur_field_name, element_data)
-                except Exception as exc:
-                    raise CallbackExecutionError(
-                        f'error while executing callback `{cur_callback}` for field `{cur_field_name}`'
-                    ) from exc
-            else:
+            if cur_field_name not in cur_item_mapping.keys():
                 raise KeyError(f'not mentioned field `{cur_field_name}` in {self.__class__.__name__} for data item '
                                f'`{self.data_item_type}`')
+            cur_callback = cur_item_mapping[cur_field_name]
+            try:
+                element_data = cur_callback.execute(
+                    self,
+                    cur_field_name,
+                    element_container,
+                    already_collected_data=new_dataclass)
+                new_dataclass.set_field_value(cur_field_name, element_data)
+            except Exception as exc:
+                raise CallbackExecutionError(
+                    f'error while executing callback `{cur_callback}` for field `{cur_field_name}`'
+                ) from exc
 
         return new_dataclass
