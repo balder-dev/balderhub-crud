@@ -40,7 +40,8 @@ class SingleDataCreatorFeature(scenario_features.SingleDataCreatorFeature):
             # the field needs to be in `self.item_mapping` or in `self.non_fillable_resolved_fields`
             if self.is_non_fillable_field(cur_field_name):
                 element_data[cur_field_name] = NOT_DEFINABLE
-            elif cur_field_val == NOT_DEFINABLE or isinstance(cur_field_val, SingleDataItem) and cur_field_val.all_fields_are_not_definable():
+            elif cur_field_val == NOT_DEFINABLE or \
+                    isinstance(cur_field_val, SingleDataItem) and cur_field_val.all_fields_are_not_definable():
                 # do not forward it
                 element_data[cur_field_name] = NOT_DEFINABLE
             elif cur_field_name in cur_item_mapping.keys():

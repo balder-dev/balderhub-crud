@@ -61,7 +61,9 @@ class Nested(BaseItemMappingCallback):
             # the absolute lookup for the current sub field
             cur_absolute_sub_field = f'{field}__{cur_sub_field}'
             cur_sub_field_val = item_data.get_field_value(cur_absolute_sub_field)
-            if not is_collecting and cur_sub_field_val == NOT_DEFINABLE: # TODO problematic - different behavior for fill()/collect()
+
+            # TODO problematic - different behavior for fill()/collect()
+            if not is_collecting and cur_sub_field_val == NOT_DEFINABLE:
                 result_data[cur_sub_field] = NOT_DEFINABLE
             else:
                 cb_result = cur_sub_callback.execute(feature, cur_absolute_sub_field, element_object, **kwargs)
@@ -78,7 +80,8 @@ class Nested(BaseItemMappingCallback):
             )
             if not has_other_val_than_none:
                 if not cur_data_item_optional:
-                    raise ValueError(f'the field `{field}` of `{feature_data_item_type}` can not be None (non optional)')
+                    raise ValueError(f'the field `{field}` of `{feature_data_item_type}` can not be None '
+                                     f'(non optional)')
                 return None
 
         for cur_field in all_expected_fields:
