@@ -12,6 +12,9 @@ ElementListItemContainerTypeT = TypeVar('ElementListItemContainerTypeT')
 
 
 class MultipleDataReaderFeature(scenario_features.MultipleDataReaderFeature):
+    """
+    Setup multiple-reader feature with field callback mapping
+    """
 
     def load(self):
         raise NotImplementedError

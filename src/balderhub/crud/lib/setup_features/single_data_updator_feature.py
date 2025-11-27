@@ -11,6 +11,9 @@ ElementContainerTypeT = TypeVar('ElementContainerTypeT')
 
 
 class SingleDataUpdaterFeature(scenario_features.SingleDataUpdaterFeature):
+    """
+    Setup update feature with field callback mapping
+    """
 
     def item_mapping(self) -> Dict[str, FillItemmappingCallback]:
         """returns a dictionary with the dataclass field name as key and its configuration as value"""

@@ -10,6 +10,9 @@ ElementContainerTypeT = TypeVar('ElementContainerTypeT')
 
 
 class SingleDataReaderFeature(scenario_features.SingleDataReaderFeature):
+    """
+    Setup single-read feature with field callback mapping
+    """
 
     def item_mapping(self) -> Dict[str, CollectItemmappingCallback]:
         """returns a dictionary with the dataclass field name as key and the callback that returns the data for this

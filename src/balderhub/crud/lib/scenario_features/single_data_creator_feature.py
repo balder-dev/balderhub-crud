@@ -3,12 +3,25 @@ from balderhub.crud.lib.scenario_features.single_data_filler_feature import Sing
 
 
 class SingleDataCreatorFeature(SingleDataFillerFeature):
+    """
+    Scenario Feature that creates a new data item in the system-under-test.
+    """
+    # TODO do we consider an difference between a default value and a optional value??
 
     def get_expected_default_values_for_fields(self) -> dict[str, Any]:
+        """
+        :return: returns a dictionary of expected default values for fields in the system-under-test.
+        """
+        # TODO integrate check by comparing it with `Optional[]` types of data item definition
         return {}
 
     @property
     def resolved_fields_with_default_values(self) -> list[str]:
+        """
+        :return: a full resolved list of fields that have default values (means: if there is no value given with this
+                 creator feature, it expects that the default value (specified within
+                 :meth:`SingleDataCreatorFeature.get_expected_default_values_for_fields`) is set
+        """
         result = []
         for cur_field_str, cur_default_value in self.get_expected_default_values_for_fields().items():
             # make sure that the default value is a string or integer or float or bool

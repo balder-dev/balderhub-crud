@@ -2,4 +2,6 @@ from balderhub.crud.lib.scenario_features.single_data_filler_feature import Sing
 
 
 class SingleDataUpdaterFeature(SingleDataFillerFeature):
-    pass
+    """
+    Scenario Feature that updating a new data item in the system-under-test.
+    """

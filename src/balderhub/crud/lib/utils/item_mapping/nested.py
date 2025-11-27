@@ -9,6 +9,9 @@ from .base_itemmapping_callback import BaseItemMappingCallback, CallbackElementO
 
 
 class Nested(BaseItemMappingCallback):
+    """
+    Helper class to define nested field callbacks.
+    """
     def __init__(self, __forward_none = True, **kwargs) -> None:
         super().__init__(**kwargs)
         self._nested_data = kwargs
@@ -16,6 +19,13 @@ class Nested(BaseItemMappingCallback):
         # TODO validate that data is correct?
 
     def execute(self, feature: balder.Feature, field: str, element_object: CallbackElementObjectT, **kwargs) -> Any:
+        """
+        Executes the nested statement with all its inner callbacks.
+
+        :param feature: the balder feature that calls this callback
+        :param field: the field name of the nested field
+        :param element_object: the element object
+        """
         # TODO WORKAROUND - WE NEED A BETTER SOLUTION FOR THAT
         from balderhub.crud.lib.setup_features import SingleDataReaderFeature, MultipleDataReaderFeature
         item_data = kwargs['already_collected_data'] if 'already_collected_data' in kwargs else kwargs['data_to_fill']
