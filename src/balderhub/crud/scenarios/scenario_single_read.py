@@ -31,7 +31,7 @@ class ScenarioSingleRead(balder.Scenario):
 
         compare_result = pot_data.get_difference_error_messages(
             device_data,
-            ignore_fields=self.DeviceUnderTest.reader.resolved_non_collectable_fields,
+            ignore_field_lookups=self.DeviceUnderTest.reader.resolved_non_collectable_fields,
             allow_non_definable=True  # TODO do we want to allow NOT_DEFINABLE here?
         )
         assert not compare_result, f"compare function returns issues: {compare_result}"
