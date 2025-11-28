@@ -2,10 +2,10 @@ from typing import Any
 from abc import ABC, abstractmethod
 
 import balder
-from .base_field_callback import BaseItemMappingCallback, CallbackElementObjectT
+from .base_field_callback import BaseFieldCallback, CallbackElementObjectT
 
 
-class CollectItemmappingCallback(BaseItemMappingCallback, ABC):
+class CollectItemmappingCallback(BaseFieldCallback, ABC):
     """
     Specific data item field callback for collecting the value of a specific field
     """

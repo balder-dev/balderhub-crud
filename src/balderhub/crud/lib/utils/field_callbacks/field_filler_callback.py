@@ -2,10 +2,10 @@ from typing import Any
 from abc import ABC, abstractmethod
 
 import balder
-from .base_field_callback import BaseItemMappingCallback, CallbackElementObjectT
+from .base_field_callback import BaseFieldCallback, CallbackElementObjectT
 
 
-class FillItemmappingCallback(BaseItemMappingCallback, ABC):
+class FillItemmappingCallback(BaseFieldCallback, ABC):
     """
     Specific data item field callback for filling a specific value into a specific field
     """

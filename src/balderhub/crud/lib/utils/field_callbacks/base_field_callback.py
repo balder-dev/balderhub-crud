@@ -5,7 +5,7 @@ from typing import Any, TypeVar
 CallbackElementObjectT = TypeVar('CallbackElementObjectT')
 
 
-class BaseItemMappingCallback(ABC):
+class BaseFieldCallback(ABC):
     """
     Base class for data item field callbacks.
 
