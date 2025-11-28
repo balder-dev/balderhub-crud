@@ -1,9 +1,8 @@
 from __future__ import annotations
 from typing import Any
 
-import balder
-
 from balderhub.data.lib.utils import NOT_DEFINABLE
+from balderhub.data.lib.utils.abstract_data_item_related_feature import AbstractDataItemRelatedFeature
 
 from .base_field_callback import BaseFieldCallback, CallbackElementObjectT
 
@@ -18,13 +17,20 @@ class Nested(BaseFieldCallback):
         self.__forward_none = __forward_none
         # TODO validate that data is correct?
 
-    def execute(self, feature: balder.Feature, field: str, element_object: CallbackElementObjectT, **kwargs) -> Any:
+    # pylint: disable=arguments-differ
+    def execute(
+            self,
+            feature: AbstractDataItemRelatedFeature,
+            field: str,
+            element_object: CallbackElementObjectT,
+            **kwargs
+    ) -> Any:
         """
         Executes the nested statement with all its inner callbacks.
 
         :param feature: the balder feature that calls this callback
-        :param field: the field name of the nested field
-        :param element_object: the element object
+        :param field: the field name
+        :param element_object: the working element describing one single container the data can be collected or filled in
         """
         # TODO WORKAROUND - WE NEED A BETTER SOLUTION FOR THAT
         from balderhub.crud.lib.setup_features import SingleDataReaderFeature, MultipleDataReaderFeature
