@@ -5,7 +5,7 @@ from balderhub.data.lib.utils import SingleDataItem, NOT_DEFINABLE
 
 from balderhub.crud.lib import scenario_features
 from balderhub.crud.lib.utils.exceptions import CallbackExecutionError
-from balderhub.crud.lib.utils.item_mapping import FillItemmappingCallback
+from balderhub.crud.lib.utils.field_callbacks import FillItemmappingCallback
 
 ElementContainerTypeT = TypeVar('ElementContainerTypeT')
 

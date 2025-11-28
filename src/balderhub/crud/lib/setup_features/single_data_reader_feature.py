@@ -4,7 +4,7 @@ from balderhub.data.lib.utils import SingleDataItem
 
 from balderhub.crud.lib import scenario_features
 from balderhub.crud.lib.utils.exceptions import CallbackExecutionError
-from balderhub.crud.lib.utils.item_mapping import CollectItemmappingCallback
+from balderhub.crud.lib.utils.field_callbacks import CollectItemmappingCallback
 
 ElementContainerTypeT = TypeVar('ElementContainerTypeT')
 
