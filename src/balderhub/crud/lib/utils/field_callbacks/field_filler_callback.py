@@ -5,7 +5,7 @@ import balder
 from .base_field_callback import BaseFieldCallback, CallbackElementObjectT
 
 
-class FillItemmappingCallback(BaseFieldCallback, ABC):
+class FieldFillerCallback(BaseFieldCallback, ABC):
     """
     Specific data item field callback for filling a specific value into a specific field
     """
