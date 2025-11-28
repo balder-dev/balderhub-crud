@@ -5,7 +5,7 @@ import balder
 from .base_field_callback import BaseFieldCallback, CallbackElementObjectT
 
 
-class CollectItemmappingCallback(BaseFieldCallback, ABC):
+class FieldCollectorCallback(BaseFieldCallback, ABC):
     """
     Specific data item field callback for collecting the value of a specific field
     """
