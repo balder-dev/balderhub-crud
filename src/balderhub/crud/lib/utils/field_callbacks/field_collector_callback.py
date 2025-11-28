@@ -2,7 +2,7 @@ from typing import Any
 from abc import ABC, abstractmethod
 
 import balder
-from .base_itemmapping_callback import BaseItemMappingCallback, CallbackElementObjectT
+from .base_field_callback import BaseItemMappingCallback, CallbackElementObjectT
 
 
 class CollectItemmappingCallback(BaseItemMappingCallback, ABC):

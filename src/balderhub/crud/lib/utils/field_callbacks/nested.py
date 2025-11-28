@@ -5,7 +5,7 @@ import balder
 
 from balderhub.data.lib.utils import NOT_DEFINABLE
 
-from .base_itemmapping_callback import BaseItemMappingCallback, CallbackElementObjectT
+from .base_field_callback import BaseItemMappingCallback, CallbackElementObjectT
 
 
 class Nested(BaseItemMappingCallback):
