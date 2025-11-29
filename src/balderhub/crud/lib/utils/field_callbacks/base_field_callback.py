@@ -2,10 +2,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, TypeVar
 
+
 CallbackElementObjectT = TypeVar('CallbackElementObjectT')
 
 
-class BaseItemMappingCallback(ABC):
+class BaseFieldCallback(ABC):
     """
     Base class for data item field callbacks.
 
@@ -15,7 +16,7 @@ class BaseItemMappingCallback(ABC):
         pass
 
     @abstractmethod
-    def execute(self, *args, **kwargs) -> Any:
+    def execute(self, **kwargs) -> Any:
         """
         This method executes the callback.
         """

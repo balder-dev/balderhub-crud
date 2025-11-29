@@ -4,7 +4,7 @@ from balderhub.data.lib.utils import SingleDataItem
 
 from balderhub.crud.lib import scenario_features
 from balderhub.crud.lib.utils.exceptions import CallbackExecutionError
-from balderhub.crud.lib.utils.item_mapping import CollectItemmappingCallback
+from balderhub.crud.lib.utils.field_callbacks import FieldCollectorCallback
 
 ElementContainerTypeT = TypeVar('ElementContainerTypeT')
 
@@ -14,7 +14,7 @@ class SingleDataReaderFeature(scenario_features.SingleDataReaderFeature):
     Setup single-read feature with field callback mapping
     """
 
-    def item_mapping(self) -> Dict[str, CollectItemmappingCallback]:
+    def item_mapping(self) -> Dict[str, FieldCollectorCallback]:
         """returns a dictionary with the dataclass field name as key and the callback that returns the data for this
         field as value - the value is a tuple with the callback on the first place and the parameter afterwards"""
         raise NotImplementedError
