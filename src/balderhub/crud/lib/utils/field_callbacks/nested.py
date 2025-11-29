@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Any, Iterable
 
 from balderhub.data.lib.utils import NOT_DEFINABLE, SingleDataItem
-from balderhub.data.lib.utils.abstract_data_item_related_feature import AbstractDataItemRelatedFeature
+from balderhub.data.lib.scenario_features.abstract_data_item_related_feature import AbstractDataItemRelatedFeature
 
 from . import FieldCollectorCallback, FieldFillerCallback
 from .base_field_callback import BaseFieldCallback, CallbackElementObjectT

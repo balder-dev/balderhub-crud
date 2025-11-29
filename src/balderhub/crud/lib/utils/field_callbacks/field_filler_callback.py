@@ -2,7 +2,7 @@ from typing import Any
 from abc import ABC, abstractmethod
 
 from balderhub.data.lib.utils import SingleDataItem
-from balderhub.data.lib.utils.abstract_data_item_related_feature import AbstractDataItemRelatedFeature
+from balderhub.data.lib.scenario_features.abstract_data_item_related_feature import AbstractDataItemRelatedFeature
 
 from .base_field_callback import BaseFieldCallback, CallbackElementObjectT
 
