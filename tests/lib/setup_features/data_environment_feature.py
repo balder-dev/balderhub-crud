@@ -9,28 +9,28 @@ class TestDataEnvironment(DataEnvironmentFeature):
 
     def load_data(self):
 
-        self._add_data(data_items.AuthorDataItem(1, 'J.K.', 'Rowling'))
-        self._add_data(data_items.AuthorDataItem(2, 'J.R.R.', 'Tolkien'))
-        self._add_data(data_items.AuthorDataItem(3, 'A.B.C.', 'Alphabet'))
+        self._add_data(data_items.AuthorDataItem(id=1, first_name='J.K.', last_name='Rowling'))
+        self._add_data(data_items.AuthorDataItem(id=2, first_name='J.R.R.', last_name='Tolkien'))
+        self._add_data(data_items.AuthorDataItem(id=3, first_name='A.B.C.', last_name='Alphabet'))
 
-        self._add_data(data_items.BookCategoryDataItem(1, 'Fantasy'))
-        self._add_data(data_items.BookCategoryDataItem(2, 'Science Fiction'))
-        self._add_data(data_items.BookCategoryDataItem(3, 'Action'))
+        self._add_data(data_items.BookCategoryDataItem(id=1, name='Fantasy'))
+        self._add_data(data_items.BookCategoryDataItem(id=2, name='Science Fiction'))
+        self._add_data(data_items.BookCategoryDataItem(id=3, name='Action'))
 
         self._add_data(data_items.BookDataItem(
-            1, 'Harry Potter and the Sorcerer’s Stone',
+            id=1, title='Harry Potter and the Sorcerer’s Stone',
             author=self.get(data_items.AuthorDataItem, 1),
             category=self.get(data_items.BookCategoryDataItem, 1))
         )
 
         self._add_data(data_items.BookDataItem(
-            2, 'Harry Potter and the Order of the Phoenix',
+            id=2, title='Harry Potter and the Order of the Phoenix',
             author=self.get(data_items.AuthorDataItem, 1),
             category=self.get(data_items.BookCategoryDataItem, 1))
         )
 
         self._add_data(data_items.BookDataItem(
-            3, 'The Hobbit',
+            id=3, title='The Hobbit',
             author=self.get(data_items.AuthorDataItem, 2),
             category=self.get(data_items.BookCategoryDataItem, 1))
         )

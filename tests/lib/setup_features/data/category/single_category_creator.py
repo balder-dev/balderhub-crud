@@ -26,7 +26,7 @@ class SingleCategoryCreator(SingleDataCreatorFeature):
         self._last_exception = None
 
     def load(self):
-        self._data = BookCategoryDataItem(NOT_DEFINABLE, NOT_DEFINABLE)
+        self._data = BookCategoryDataItem(id=NOT_DEFINABLE, name=NOT_DEFINABLE)
 
     def get_non_fillable_fields(self) -> List[str]:
         return ['id']

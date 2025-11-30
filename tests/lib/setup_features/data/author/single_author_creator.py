@@ -26,7 +26,7 @@ class SingleAuthorCreator(SingleDataCreatorFeature):
         self._data: Union[AuthorDataItem, None] = None
 
     def load(self):
-        self._data = AuthorDataItem(NOT_DEFINABLE, NOT_DEFINABLE, NOT_DEFINABLE)
+        self._data = AuthorDataItem(id=NOT_DEFINABLE, first_name=NOT_DEFINABLE, last_name=NOT_DEFINABLE)
 
     def get_non_fillable_fields(self) -> List[str]:
         return ['id']
