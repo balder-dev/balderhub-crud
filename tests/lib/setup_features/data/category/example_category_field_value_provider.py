@@ -32,3 +32,4 @@ class ExampleCategoryFieldValueProvider(ExampleFieldValueProviderFeature):
                     )
                 )
             ]
+        return []

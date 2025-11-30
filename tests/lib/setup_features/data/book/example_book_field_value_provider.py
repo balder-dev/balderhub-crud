@@ -36,6 +36,7 @@ class ExampleBookFieldValueProvider(ExampleFieldValueProviderFeature):
                     new_field_value=3
                 )
             ]
+        return []
 
     def get_invalid_new_value_for_field(self, data_item: data_items.BookDataItem, field: str) -> Any:
         if field == 'title':
@@ -89,3 +90,4 @@ class ExampleBookFieldValueProvider(ExampleFieldValueProviderFeature):
                     )
                 )
             ]
+        return []
