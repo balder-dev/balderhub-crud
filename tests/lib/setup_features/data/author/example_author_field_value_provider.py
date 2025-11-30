@@ -44,3 +44,4 @@ class ExampleAuthorFieldModificationValueProvider(ExampleFieldValueProviderFeatu
                     )
                 )
             ]
+        return []
