@@ -2,7 +2,7 @@ from balderhub.data.lib.scenario_features.abstract_data_item_related_feature imp
 from balderhub.data.lib.utils.response_message_list import ResponseMessageList
 
 
-class BasicInteractorFeature(AbstractDataItemRelatedFeature):
+class BaseInteractorFeature(AbstractDataItemRelatedFeature):
     """
     Feature class that interacts with the system-under-test in some kind.
     """

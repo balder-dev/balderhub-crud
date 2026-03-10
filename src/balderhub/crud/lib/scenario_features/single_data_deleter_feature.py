@@ -1,8 +1,8 @@
 from __future__ import annotations
-from balderhub.crud.lib.scenario_features.basic_interactor_feature import BasicInteractorFeature
+from balderhub.crud.lib.scenario_features.base_interactor_feature import BaseInteractorFeature
 
 
-class SingleDataDeleterFeature(BasicInteractorFeature):
+class SingleDataDeleterFeature(BaseInteractorFeature):
     """
     Scenario Feature that deletes an existing data item in the system-under-test.
     """
