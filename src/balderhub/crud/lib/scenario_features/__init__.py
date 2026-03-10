@@ -1,8 +1,8 @@
 from .base_example_provider import BaseExampleProvider
 from .base_field_example_provider import BaseFieldExampleProvider
+from .base_interactor_feature import BaseInteractorFeature
 from .base_multiple_example_provider import BaseMultipleExampleProvider
 from .base_single_example_provider import BaseSingleExampleProvider
-from .basic_interactor_feature import BasicInteractorFeature
 from .multiple_data_reader_feature import MultipleDataReaderFeature
 from .single_create_example_provider import SingleCreateExampleProvider
 from .single_data_creator_feature import SingleDataCreatorFeature
@@ -17,9 +17,9 @@ from .single_update_field_example_provider import SingleUpdateFieldExampleProvid
 __all__ = [
     'BaseExampleProvider',
     'BaseFieldExampleProvider',
+    'BaseInteractorFeature',
     'BaseMultipleExampleProvider',
     'BaseSingleExampleProvider',
-    'BasicInteractorFeature',
     'MultipleDataReaderFeature',
     'SingleCreateExampleProvider',
     'SingleDataCreatorFeature',

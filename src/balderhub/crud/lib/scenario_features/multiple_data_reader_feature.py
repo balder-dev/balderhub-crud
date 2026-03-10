@@ -1,10 +1,10 @@
 from balderhub.data.lib.utils import SingleDataItemCollection
 from balderhub.data.lib.utils.functions import field_contained_in
 
-from .basic_interactor_feature import BasicInteractorFeature
+from .base_interactor_feature import BaseInteractorFeature
 
 
-class MultipleDataReaderFeature(BasicInteractorFeature):
+class MultipleDataReaderFeature(BaseInteractorFeature):
     """
     Scenario Feature that reads a list of data items from the system-under-test.
     """

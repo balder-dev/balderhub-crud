@@ -4,10 +4,10 @@ from typing import List
 from balderhub.data.lib.utils import SingleDataItem, ResponseMessageList
 from balderhub.data.lib.utils.functions import field_contained_in
 
-from balderhub.crud.lib.scenario_features.basic_interactor_feature import BasicInteractorFeature
+from balderhub.crud.lib.scenario_features.base_interactor_feature import BaseInteractorFeature
 
 
-class SingleDataFillerFeature(BasicInteractorFeature):
+class SingleDataFillerFeature(BaseInteractorFeature):
     """
     Base scenario feature for filling a single data item.
     """
