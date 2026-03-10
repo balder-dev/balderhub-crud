@@ -1,32 +1,34 @@
 from __future__ import annotations
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Any
 
 import balder
 import balderhub.data
 
-from balderhub.data.lib.utils import SingleDataItem, ResponseMessageList, ResponseMessage, NOT_DEFINABLE
+from balderhub.data.lib.utils import ResponseMessageList, ResponseMessage
 
-from balderhub.crud.lib.setup_features import SingleDataCreatorFeature
+from balderhub.crud.lib.setup_features import SingleCreatorFeature
+from balderhub.crud.lib.utils import UNSET
 from balderhub.crud.lib.utils.field_callbacks import FieldFillerCallback, Nested
 
 from tests.lib.setup_features.dut_simulator_feature import DutSimulatorFeature
 from tests.lib.utils.data_items import BookDataItem
-from tests.lib.utils.inject_into_dataitem_callback import InjectIntoDataitemCallback
+from tests.lib.utils.inject_into_dict_callback import InjectIntoDictCallback
 
 
 @balderhub.data.register_for_data_item(BookDataItem)
-class SingleBookCreator(SingleDataCreatorFeature):
+class SingleBookCreator(SingleCreatorFeature):
+
     class Dut(balder.VDevice):
         sim = DutSimulatorFeature()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self._data: Union[BookDataItem, None] = None
+        self._data: Union[dict[str, Any], None] = None
         self._last_exception = None
 
     def load(self):
-        self._data = BookDataItem(id=NOT_DEFINABLE, title=NOT_DEFINABLE, author=NOT_DEFINABLE, category=NOT_DEFINABLE)
+        self._data = {}
 
     def get_non_fillable_fields(self) -> List[str]:
         return [
@@ -35,17 +37,17 @@ class SingleBookCreator(SingleDataCreatorFeature):
             *BookDataItem.get_all_fields_for('category', except_fields=['id']),
         ]
 
-    def get_element_container(self) -> BookDataItem:
+    def get_element_container(self) -> dict[str, Any]:
         return self._data
 
     def item_mapping(self) -> Dict[str, FieldFillerCallback]:
         return {
-            'title': InjectIntoDataitemCallback(),
+            'title': InjectIntoDictCallback(),
             'author': Nested(
-                id=InjectIntoDataitemCallback()
+                id=InjectIntoDictCallback()
             ),
             'category': Nested(
-                id=InjectIntoDataitemCallback()
+                id=InjectIntoDictCallback()
             )
         }
 
@@ -54,23 +56,15 @@ class SingleBookCreator(SingleDataCreatorFeature):
         if self._data is None:
             raise ValueError("No filled data")
 
-        parameter = {}
-        if self._data.title != NOT_DEFINABLE:
-            parameter['title'] = self._data.title
-        if self._data.author != NOT_DEFINABLE and self._data.author.id != NOT_DEFINABLE:
-            parameter['author__id'] = self._data.author.id
-        if self._data.category != NOT_DEFINABLE and self._data.category.id != NOT_DEFINABLE:
-            parameter['category__id'] = self._data.category.id
-
         try:
-            self.Dut.sim.dut_simulator.add_book(**parameter)
+            self.Dut.sim.dut_simulator.add_book(**{k: v for k, v in self._data.items() if v != UNSET})
             self._data = None
         except Exception as e:
             self._last_exception = e
 
     def get_expected_error_message_for_missing_mandatory_field(
             self,
-            data_item: SingleDataItem,
+            data: dict[str, Any],
             without_mandatory_field: str
     ) -> ResponseMessageList:
         return ResponseMessageList([ResponseMessage(

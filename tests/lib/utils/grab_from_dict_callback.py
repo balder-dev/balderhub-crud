@@ -2,26 +2,22 @@ from typing import Any
 
 from balderhub.data.lib.scenario_features.abstract_data_item_related_feature import AbstractDataItemRelatedFeature
 
-from balderhub.data.lib.utils import SingleDataItem
-from balderhub.crud.lib.utils.field_callbacks import FieldFillerCallback
+from balderhub.data.lib.utils import SingleDataItem, LookupFieldString
+from balderhub.crud.lib.utils.field_callbacks import FieldCollectorCallback
 from balderhub.crud.lib.utils.field_callbacks.base_field_callback import CallbackElementObjectT
 
 
-# TODO improve that - maybe provide different ones
-
-
-class InjectIntoDataitemCallback(FieldFillerCallback):
+class GrabFromDictCallback(FieldCollectorCallback):
 
     def __init__(self):
         super().__init__()
 
-    def execute(
+    def _collect_field_value(
             self,
             feature: AbstractDataItemRelatedFeature,
-            field: str,
+            abs_field_name: LookupFieldString,
             element_object: CallbackElementObjectT,
-            data_to_fill: SingleDataItem,
+            already_collected_data: SingleDataItem,
             **kwargs
     ) -> Any:
-        element_object.set_field_value(field, data_to_fill.get_field_value(field))
-        return data_to_fill
+        return element_object[str(abs_field_name)]

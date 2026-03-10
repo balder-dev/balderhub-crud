@@ -1,6 +1,7 @@
 from balderhub.data.lib.scenario_features.data_environment_feature import DataEnvironmentFeature
 from tests.lib.utils import data_items
 from tests.lib.setup_features.dut_simulator_feature import DutSimulatorFeature
+from tests.lib.utils.dut_simulator import DutSimulator
 
 
 class TestDataEnvironment(DataEnvironmentFeature):
@@ -35,10 +36,18 @@ class TestDataEnvironment(DataEnvironmentFeature):
             category=self.get(data_items.BookCategoryDataItem, 1))
         )
 
-    def setup_environment(self):
+    def sync_environment(self):
         for cur_author in self.get_all_for(data_items.AuthorDataItem):
-            self.sim.dut_simulator._all_authors.append(cur_author)
+            self.sim.dut_simulator._all_authors[cur_author.id] = DutSimulator.Author(
+                id=cur_author.id, first_name=cur_author.first_name, last_name=cur_author.last_name
+            )
+
         for cur_category in self.get_all_for(data_items.BookCategoryDataItem):
-            self.sim.dut_simulator._all_categories.append(cur_category)
+            self.sim.dut_simulator._all_categories[cur_category.id] = DutSimulator.Category(
+                id=cur_category.id, name=cur_category.name
+            )
+
         for cur_book in self.get_all_for(data_items.BookDataItem):
-            self.sim.dut_simulator._all_books.append(cur_book)
+            self.sim.dut_simulator._all_books[cur_book.id] = DutSimulator.Book(
+                id=cur_book.id, title=cur_book.title, author__id=cur_book.author.id, category__id=cur_book.category.id
+            )

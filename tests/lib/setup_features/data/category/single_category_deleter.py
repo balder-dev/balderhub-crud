@@ -3,17 +3,16 @@ import balder
 import balderhub.data.lib.setup_features.factories
 from balderhub.data.lib.utils import ResponseMessageList, ResponseMessage
 
-from balderhub.crud.lib.scenario_features.single_data_deleter_feature import SingleDataDeleterFeature
+from balderhub.crud.lib.scenario_features.single_deleter_feature import SingleDeleterFeature
 
 from tests.lib.setup_features import DutSimulatorFeature
 from tests.lib.utils.data_items import BookCategoryDataItem
 
 
 @balderhub.data.register_for_data_item(BookCategoryDataItem)
-class SingleCategoryDeleter(SingleDataDeleterFeature):
+class SingleCategoryDeleter(SingleDeleterFeature):
 
     class Dut(balder.VDevice):
-        single = balderhub.data.lib.setup_features.factories.AutoSingleDataConfigSetupFactory.get_for(BookCategoryDataItem)()
         sim = DutSimulatorFeature()
 
     def __init__(self, **kwargs):
