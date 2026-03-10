@@ -3,28 +3,33 @@ from typing import Any
 
 import balderhub.data
 from balderhub.data.lib.utils import ResponseMessageList, ResponseMessage
-from balderhub.data.lib.scenario_features.example_field_value_provider_feature import ExampleFieldValueProviderFeature
+import balderhub.crud.lib.scenario_features
 
-from tests.lib.utils.data_items import AuthorDataItem
+from .example_create_author_provider import ExampleCreateAuthorProvider
+from ....utils.data_items import AuthorDataItem
 
 
 @balderhub.data.register_for_data_item(AuthorDataItem)
-class ExampleAuthorFieldModificationValueProvider(ExampleFieldValueProviderFeature):
+class ExampleUpdateAuthorFieldProvider(balderhub.crud.lib.scenario_features.SingleUpdateFieldExampleProvider):
 
-    def get_valid_new_value_for_field(self, data_item: AuthorDataItem, field: str) -> Any:
+    read_example = balderhub.crud.lib.scenario_features.factories.AutoSingleReadExampleFactory.get_for(AuthorDataItem)()
+
+    def get_valid_new_value_for_field(self, field: str) -> Any:
         return [
             self.NamedExample(
                 name="Changed Name",
+                data_item=self.read_example.get_first_valid_example().data_item,
                 field_name=field,
                 new_field_value='Chalana'
             )
         ]
 
-    def get_invalid_new_value_for_field(self, data_item: AuthorDataItem, field: str) -> Any:
+    def get_invalid_new_value_for_field(self, field: str) -> Any:
         if field == 'first_name':
             return [
                 self.NamedExample(
                     name="Empty Firstname",
+                    data_item=self.read_example.get_first_valid_example().data_item,
                     field_name=field,
                     new_field_value='',
                     expected_response_messages=ResponseMessageList(
@@ -37,6 +42,7 @@ class ExampleAuthorFieldModificationValueProvider(ExampleFieldValueProviderFeatu
             return [
                 self.NamedExample(
                     name="Empty Lastname",
+                    data_item=self.read_example.get_first_valid_example().data_item,
                     field_name=field,
                     new_field_value='',
                     expected_response_messages=ResponseMessageList(

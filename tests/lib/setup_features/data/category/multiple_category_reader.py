@@ -1,19 +1,19 @@
-from typing import List, Dict
+from typing import Any
 
 import balder
 import balderhub.data
 
-
-from balderhub.crud.lib.setup_features.multiple_data_reader_feature import MultipleDataReaderFeature
 from balderhub.crud.lib.utils.field_callbacks import FieldCollectorCallback
 
-from tests.lib.setup_features.dut_simulator_feature import DutSimulatorFeature
-from tests.lib.utils import data_items
-from tests.lib.utils.grab_from_dataitem_callback import GrabFromDataitemCallback
+import balderhub.crud.lib.setup_features
+
+from ...dut_simulator_feature import DutSimulatorFeature
+from ....utils import data_items
+from ....utils.grab_from_dict_callback import GrabFromDictCallback
 
 
 @balderhub.data.register_for_data_item(data_items.BookCategoryDataItem)
-class MultipleCategoryReader(MultipleDataReaderFeature):
+class MultipleCategoryReader(balderhub.crud.lib.setup_features.MultipleReaderFeature):
 
     class Dut(balder.VDevice):
         sim = DutSimulatorFeature()
@@ -23,16 +23,18 @@ class MultipleCategoryReader(MultipleDataReaderFeature):
         self._elements = None
 
     def load(self):
-        self._elements = self.Dut.sim.dut_simulator.get_all_categories()
+        self._elements = []
+        for cur_category in self.Dut.sim.dut_simulator.get_all_categories():
+            self._elements.append({
+                'id': cur_category.id,
+                'name': cur_category.name
+            })
 
-    def get_list_item_element_container(self) -> List[data_items.BookCategoryDataItem]:
+    def get_list_item_element_container(self) -> list[dict[str, Any]]:
         return self._elements
 
-    def _cb_get_from_data_item(self, data_item: data_items.BookCategoryDataItem, field: str):
-        return getattr(data_item, field)
-
-    def item_mapping(self) -> Dict[str, FieldCollectorCallback]:
+    def item_mapping(self) -> dict[str, FieldCollectorCallback]:
         return {
-            'id': GrabFromDataitemCallback(),
-            'name': GrabFromDataitemCallback(),
+            'id': GrabFromDictCallback(),
+            'name': GrabFromDictCallback(),
         }

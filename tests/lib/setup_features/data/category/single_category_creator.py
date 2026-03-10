@@ -1,20 +1,21 @@
 from __future__ import annotations
-from typing import List, Dict, Union
+from typing import Union, Any
 
 import balder
 import balderhub.data
-from balderhub.data.lib.utils import SingleDataItem, ResponseMessageList, ResponseMessage, NOT_DEFINABLE
+from balderhub.data.lib.utils import ResponseMessageList, ResponseMessage
 
-from balderhub.crud.lib.setup_features import SingleDataCreatorFeature
+from balderhub.crud.lib.setup_features import SingleCreatorFeature
+from balderhub.crud.lib.utils import UNSET
 from balderhub.crud.lib.utils.field_callbacks import FieldFillerCallback
 
 from tests.lib.setup_features.dut_simulator_feature import DutSimulatorFeature
 from tests.lib.utils.data_items import BookCategoryDataItem
-from tests.lib.utils.inject_into_dataitem_callback import InjectIntoDataitemCallback
+from tests.lib.utils.inject_into_dict_callback import InjectIntoDictCallback
 
 
 @balderhub.data.register_for_data_item(BookCategoryDataItem)
-class SingleCategoryCreator(SingleDataCreatorFeature):
+class SingleCategoryCreator(SingleCreatorFeature):
 
     class Dut(balder.VDevice):
         sim = DutSimulatorFeature()
@@ -22,21 +23,21 @@ class SingleCategoryCreator(SingleDataCreatorFeature):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self._data: Union[BookCategoryDataItem, None] = None
+        self._data: Union[dict[str, Any], None] = None
         self._last_exception = None
 
     def load(self):
-        self._data = BookCategoryDataItem(id=NOT_DEFINABLE, name=NOT_DEFINABLE)
+        self._data = {}
 
-    def get_non_fillable_fields(self) -> List[str]:
+    def get_non_fillable_fields(self) -> list[str]:
         return ['id']
 
-    def get_element_container(self) -> BookCategoryDataItem:
+    def get_element_container(self) -> dict[str, Any]:
         return self._data
 
-    def item_mapping(self) -> Dict[str, FieldFillerCallback]:
+    def item_mapping(self) -> dict[str, FieldFillerCallback]:
         return {
-            'name': InjectIntoDataitemCallback()
+            'name': InjectIntoDictCallback()
         }
 
     def save(self):
@@ -44,19 +45,15 @@ class SingleCategoryCreator(SingleDataCreatorFeature):
         if self._data is None:
             raise ValueError("No filled data")
 
-        parameter = {}
-        if self._data.name != NOT_DEFINABLE:
-            parameter['name'] = self._data.name
-
         try:
-            self.Dut.sim.dut_simulator.add_category(**parameter)
+            self.Dut.sim.dut_simulator.add_category(**{k: v for k, v in self._data.items() if v != UNSET})
             self._data = None
         except Exception as e:
             self._last_exception = e
 
     def get_expected_error_message_for_missing_mandatory_field(
             self,
-            data_item: SingleDataItem,
+            data: dict[str, Any],
             without_mandatory_field: str
     ) -> ResponseMessageList:
         return ResponseMessageList([ResponseMessage(f"DutSimulator.add_category() missing 1 required positional argument: '{without_mandatory_field}'")])

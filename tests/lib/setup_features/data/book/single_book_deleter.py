@@ -3,18 +3,20 @@ import balder
 import balderhub.data.lib.setup_features.factories
 from balderhub.data.lib.utils import ResponseMessageList, ResponseMessage
 
-from balderhub.crud.lib.scenario_features.single_data_deleter_feature import SingleDataDeleterFeature
+import balderhub.crud.lib.scenario_features
+import balderhub.crud.lib.scenario_features
 
 from tests.lib.setup_features import DutSimulatorFeature
 from tests.lib.utils.data_items import BookDataItem
 
 
 @balderhub.data.register_for_data_item(BookDataItem)
-class SingleBookDeleter(SingleDataDeleterFeature):
+class SingleBookDeleter(balderhub.crud.lib.scenario_features.SingleDeleterFeature):
 
     class Dut(balder.VDevice):
-        single = balderhub.data.lib.setup_features.factories.AutoSingleDataConfigSetupFactory.get_for(BookDataItem)()
         sim = DutSimulatorFeature()
+
+    #example_delete = balderhub.crud.lib.scenario_features.factories.AutoSingleDeleteExampleFactory.get_for(BookDataItem)()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -27,7 +29,7 @@ class SingleBookDeleter(SingleDataDeleterFeature):
         self._last_exception = None
 
         try:
-            self.Dut.sim.dut_simulator.delete_book(self.Dut.single.data_item.id)
+            self.Dut.sim.dut_simulator.delete_book(self.example_delete.get_valid_examples()[0])
         except Exception as e:
             self._last_exception = e
 
