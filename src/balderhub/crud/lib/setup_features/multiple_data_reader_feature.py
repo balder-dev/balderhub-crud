@@ -19,12 +19,12 @@ class MultipleDataReaderFeature(scenario_features.MultipleDataReaderFeature):
     def load(self):
         raise NotImplementedError
 
-    def get_list_item_element_container(self) -> List[ElementListItemContainerTypeT]:
+    def get_list_item_element_container(self) -> list[ElementListItemContainerTypeT]:
         """this callback collects the data of the table and returns a dictionary with the unique id as key and the data
         as value"""
         raise NotImplementedError
 
-    def item_mapping(self) -> Dict[str, FieldCollectorCallback]:
+    def item_mapping(self) -> dict[str, FieldCollectorCallback]:
         """returns a dictionary with the dataclass field name as key and the callback that returns the data for this
         field as value - the value is a tuple with the callback on the first place and the parameter afterwards"""
         raise NotImplementedError

@@ -14,7 +14,7 @@ class SingleDataCreatorFeature(scenario_features.SingleDataCreatorFeature):
     Setup creating feature with field callback mapping
     """
 
-    def item_mapping(self) -> Dict[str, FieldFillerCallback]:
+    def item_mapping(self) -> dict[str, FieldFillerCallback]:
         """returns a dictionary with the dataclass field name as key and its configuration as value"""
         raise NotImplementedError
 
