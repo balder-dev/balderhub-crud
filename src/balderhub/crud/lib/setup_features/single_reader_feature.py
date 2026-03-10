@@ -1,4 +1,4 @@
-from typing import Dict, TypeVar
+from typing import TypeVar
 
 from balderhub.data.lib.utils import SingleDataItem
 
@@ -9,7 +9,7 @@ from balderhub.crud.lib.utils.field_callbacks import FieldCollectorCallback
 ElementContainerTypeT = TypeVar('ElementContainerTypeT')
 
 
-class SingleDataReaderFeature(scenario_features.SingleDataReaderFeature):
+class SingleReaderFeature(scenario_features.SingleReaderFeature):
     """
     Setup single-read feature with field callback mapping
     """
@@ -27,12 +27,12 @@ class SingleDataReaderFeature(scenario_features.SingleDataReaderFeature):
         raise NotImplementedError
 
     def collect(self) -> SingleDataItem:
-        new_dataclass = self.data_item_type.create_non_definable(nested=True)
 
         element_container = self.get_element_container()
         cur_item_mapping = self.item_mapping()
 
         # iterate over all existing fields
+        element_data = {}
         for cur_field_name in self.data_item_type.get_all_fields_for(nested=False):
             # the field needs to be in `self.item_mapping` or in `self.non_collectable_resolved_fields`
             if self.is_non_collectable_field(cur_field_name):
@@ -43,15 +43,19 @@ class SingleDataReaderFeature(scenario_features.SingleDataReaderFeature):
                                f'`{self.data_item_type}`')
             cur_callback = cur_item_mapping[cur_field_name]
             try:
-                element_data = cur_callback.execute(
+                element_data[cur_field_name] = cur_callback.execute(
                     self,
                     cur_field_name,
                     element_container,
-                    already_collected_data=new_dataclass)
-                new_dataclass.set_field_value(cur_field_name, element_data)
+                    already_collected_data=element_data
+                )
             except Exception as exc:
                 raise CallbackExecutionError(
                     f'error while executing callback `{cur_callback}` for field `{cur_field_name}`'
                 ) from exc
 
-        return new_dataclass
+        new_data_item = self.data_item_type.create_non_definable(nested=True)
+        for cur_field_name, cur_field_val in element_data.items():
+            new_data_item.set_field_value(cur_field_name, cur_field_val)
+
+        return new_data_item

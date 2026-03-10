@@ -1,12 +1,15 @@
 from typing import Any
-from balderhub.crud.lib.scenario_features.single_data_filler_feature import SingleDataFillerFeature
+from .single_filler_feature import SingleFillerFeature
 
 
-class SingleDataCreatorFeature(SingleDataFillerFeature):
+class SingleCreatorFeature(SingleFillerFeature):
     """
     Scenario Feature that creates a new data item in the system-under-test.
     """
     # TODO do we consider an difference between a default value and a optional value??
+
+    def load(self, **kwargs) -> None:
+        raise NotImplementedError
 
     def get_expected_default_values_for_fields(self) -> dict[str, Any]:
         """

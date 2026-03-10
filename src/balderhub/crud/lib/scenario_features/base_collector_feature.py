@@ -1,12 +1,11 @@
-from balderhub.data.lib.utils import SingleDataItem
-from balderhub.data.lib.utils.functions import field_contained_in
+from balderhub.data.lib.utils import ResponseMessageList
 
 from balderhub.crud.lib.scenario_features.base_interactor_feature import BaseInteractorFeature
 
 
-class SingleDataReaderFeature(BaseInteractorFeature):
+class BaseCollectorFeature(BaseInteractorFeature):
     """
-    Scenario Feature that reads one data items from the system-under-test.
+    Scenario Feature that reads field data of data items.
     """
 
     def get_non_collectable_fields(self) -> list[str]:
@@ -44,18 +43,10 @@ class SingleDataReaderFeature(BaseInteractorFeature):
         :param field_lookup: the field lookup to check
         :return: True if it is non-collectable, False otherwise
         """
-        field = self.data_item_type.get_field(field_lookup)
-        return field_contained_in(field=field, list_of_resolved_field=self.resolved_non_collectable_fields)
+        return self.data_item_type.all_field_lookups_are_within(field_lookup, self.resolved_non_collectable_fields)
 
-    def load(self):
-        """
-        Loads the system-under-test to be in the state for collecting the data item.
-        """
-        raise NotImplementedError
+    def get_active_success_messages(self) -> ResponseMessageList:
+        raise NotImplementedError()
 
-    def collect(self) -> SingleDataItem:
-        """
-        Executes the collecting process of the data item.
-        :return: the collected data item
-        """
+    def get_active_error_messages(self) -> ResponseMessageList:
         raise NotImplementedError()

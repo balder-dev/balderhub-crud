@@ -2,15 +2,16 @@ import logging
 import copy
 import balder
 
-from balderhub.data.lib.scenario_features import ExampleDataProviderFeature
-from balderhub.data.lib.utils import NOT_DEFINABLE
-from balderhub.crud.lib.scenario_features.multiple_data_reader_feature import MultipleDataReaderFeature
-from balderhub.crud.lib.scenario_features.single_data_creator_feature import SingleDataCreatorFeature
+from balderhub.data.lib.utils.not_definable import NOT_DEFINABLE
+from balderhub.data.lib.utils.functions import set_lookup_field_in_data_dict
+
+from balderhub.crud.lib import scenario_features
+from balderhub.crud.lib.utils.unset import UNSET
 
 logger = logging.getLogger(__name__)
 
 
-class ScenarioSingleCreateTriangle(balder.Scenario):
+class ScenarioTriangleSingleCreate(balder.Scenario):
     """
     Creating test scenario that creates a new element in the system-under-test. This test scenario is a triangle-device
     scenario. One device reads the data and the other device creates it. If you want to use a test
@@ -24,16 +25,19 @@ class ScenarioSingleCreateTriangle(balder.Scenario):
     @balder.connect('PointOfTruth', over_connection=balder.Connection)
     class Creator(balder.Device):
         """the device under test that can create a new data item"""
-        creator = SingleDataCreatorFeature()
-        example = ExampleDataProviderFeature()
+        #: can create a new data set in the system under test
+        creator = scenario_features.SingleCreatorFeature()
+        #: provides example data for a full new data item
+        example = scenario_features.SingleCreateExampleProvider()
 
     @balder.connect('PointOfTruth', over_connection=balder.Connection)
     class Reader(balder.Device):
         """the device that can read the data item list"""
-        list_reader = MultipleDataReaderFeature()
+        #: reads all existing accessible data
+        list_reader = scenario_features.MultipleReaderFeature()
 
     @balder.parametrize_by_feature('valid_example', (Creator, 'example', 'get_valid_examples'))
-    def test_create_valid(self, valid_example: ExampleDataProviderFeature.NamedExample):
+    def test_create_valid(self, valid_example: scenario_features.SingleCreateExampleProvider.NamedExample):
         """
         This test creates a new data item in the device-under-test and validates its creation. It checks all fillable
         and collectable data fields before and after the new data item was created. It makes sure that only one data
@@ -49,7 +53,7 @@ class ScenarioSingleCreateTriangle(balder.Scenario):
         assert NOT_DEFINABLE not in all_items_before.get_all_unique_identifier()
 
         self.Creator.creator.load()
-        self.Creator.creator.fill(valid_example.data)
+        self.Creator.creator.fill(valid_example.data_item.model_dump())
         self.Creator.creator.save()
 
         if valid_example.expected_response_messages:
@@ -80,13 +84,13 @@ class ScenarioSingleCreateTriangle(balder.Scenario):
         # now only the newly created one should remain
         assert len(copied_all_items_after) == 1, "found more newly created elements"
         # also compare the new one
-        assert valid_example.data.compare(copied_all_items_after[0],  allow_non_definable=True), \
+        assert valid_example.data_item.compare(copied_all_items_after[0], allow_non_definable=True), \
             "found difference to expectation for newly created data item"
 
     @balder.parametrize_by_feature(
         'invalid_example', (Creator, 'example', 'get_invalid_examples')
     )
-    def test_create_invalid(self, invalid_example: ExampleDataProviderFeature.NamedExample):
+    def test_create_invalid(self, invalid_example: scenario_features.SingleCreateExampleProvider.NamedExample):
         """
         This test tries to create a new invalid data item in the device-under-test and makes sure that it was not
         created. It also validates that the correct error messages were returned by the system and that the previous
@@ -101,7 +105,7 @@ class ScenarioSingleCreateTriangle(balder.Scenario):
         assert NOT_DEFINABLE not in all_items_before.get_all_unique_identifier()
 
         self.Creator.creator.load()
-        self.Creator.creator.fill(invalid_example.data)
+        self.Creator.creator.fill(invalid_example.data_item.model_dump())
         self.Creator.creator.save()
 
         success_messages = self.Creator.creator.get_active_success_messages()
@@ -160,8 +164,7 @@ class ScenarioSingleCreateTriangle(balder.Scenario):
         real_optional_field = without_optional_field
         while True:
             # check if this sub-field can be optional
-            _, is_optional = valid_example.data.__class__.get_field_data_type(real_optional_field)
-            if is_optional:
+            if valid_example.data_item.__class__.is_optional_field(real_optional_field):
                 logger.info(f'set `None` to field value `{real_optional_field}`, because this is the higher field that '
                             f'can be optional')
                 break
@@ -174,7 +177,7 @@ class ScenarioSingleCreateTriangle(balder.Scenario):
             real_optional_field = real_optional_field[:cut_idx]
 
 
-        expected_data = copy.deepcopy(valid_example.data)
+        expected_data = copy.deepcopy(valid_example.data_item)
         expected_data.set_field_value(
             real_optional_field,
             None,
@@ -187,8 +190,8 @@ class ScenarioSingleCreateTriangle(balder.Scenario):
         assert all_items_before.has_unique_elements()
         assert NOT_DEFINABLE not in all_items_before.get_all_unique_identifier()
 
-        data_to_fill = copy.deepcopy(valid_example.data)
-        data_to_fill.set_field_value(without_optional_field, NOT_DEFINABLE, only_change_this_value=True)
+        data_to_fill = valid_example.data_item.model_dump()
+        set_lookup_field_in_data_dict(data_to_fill, without_optional_field, UNSET)
 
         self.Creator.creator.load()
         self.Creator.creator.fill(data_to_fill)
@@ -255,7 +258,7 @@ class ScenarioSingleCreateTriangle(balder.Scenario):
         """
         valid_example = self.Creator.example.get_valid_examples()[0]
 
-        expected_data = copy.deepcopy(valid_example.data)
+        expected_data = copy.deepcopy(valid_example.data_item)
         expected_data.set_field_value(
             without_field,
             self.Creator.creator.get_expected_default_values_for_fields()[without_field], # todo structure that nicer
@@ -268,8 +271,8 @@ class ScenarioSingleCreateTriangle(balder.Scenario):
         assert all_items_before.has_unique_elements()
         assert NOT_DEFINABLE not in all_items_before.get_all_unique_identifier()
 
-        data_to_fill = copy.deepcopy(valid_example.data)
-        data_to_fill.set_field_value(without_field, NOT_DEFINABLE, only_change_this_value=True)
+        data_to_fill = valid_example.data_item.model_dump()
+        set_lookup_field_in_data_dict(data_to_fill, without_field, UNSET)
 
         self.Creator.creator.load()
         self.Creator.creator.fill(data_to_fill)
@@ -340,8 +343,8 @@ class ScenarioSingleCreateTriangle(balder.Scenario):
         assert NOT_DEFINABLE not in all_items_before.get_all_unique_identifier()
 
         self.Creator.creator.load()
-        manipulated_data = copy.deepcopy(valid_example.data)
-        manipulated_data.set_field_value(without_mandatory_field, NOT_DEFINABLE, only_change_this_value=True)
+        manipulated_data = valid_example.data_item.model_dump()
+        set_lookup_field_in_data_dict(manipulated_data, without_mandatory_field, UNSET)
 
         filled_data_class = self.Creator.creator.fill(manipulated_data)
         self.Creator.creator.save()

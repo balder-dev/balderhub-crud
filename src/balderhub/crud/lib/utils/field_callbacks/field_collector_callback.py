@@ -1,8 +1,8 @@
 from typing import Any
 from abc import ABC, abstractmethod
 
-from balderhub.data.lib.utils import SingleDataItem
 from balderhub.data.lib.scenario_features.abstract_data_item_related_feature import AbstractDataItemRelatedFeature
+from balderhub.data.lib.utils import LookupFieldString
 
 from .base_field_callback import BaseFieldCallback, CallbackElementObjectT
 
@@ -13,19 +13,45 @@ class FieldCollectorCallback(BaseFieldCallback, ABC):
     """
 
     # pylint: disable=arguments-differ
-    @abstractmethod
     def execute(
             self,
             feature: AbstractDataItemRelatedFeature,
-            field: str,
+            abs_field_name: LookupFieldString | str,
             element_object: CallbackElementObjectT,
-            already_collected_data: SingleDataItem,
+            already_collected_data: dict[str, Any],
             **kwargs
     ) -> Any:
         """
         Executes the collecting of the specific field value.
+
         :param feature: the balder feature that calls this callback
-        :param field: the field name
+        :param abs_field_name: the field name
+        :param element_object: the working element describing one single container the data can be collected
+        :param already_collected_data: all data that was already collected
+        :return: the collected field value
+        """
+        abs_field_name = LookupFieldString(abs_field_name)
+        return self._collect_field_value(
+            feature=feature,
+            abs_field_name=abs_field_name,
+            element_object=element_object,
+            already_collected_data=already_collected_data
+        )
+
+    @abstractmethod
+    def _collect_field_value(
+            self,
+            feature: AbstractDataItemRelatedFeature,
+            abs_field_name: LookupFieldString,
+            element_object: CallbackElementObjectT,
+            already_collected_data: dict[str, Any],
+            **kwargs
+    ) -> Any:
+        """
+        Callback that needs to be overwritten by child class. It should execute the collecting process.
+
+        :param feature: the balder feature that calls this callback
+        :param abs_field_name: the field name
         :param element_object: the working element describing one single container the data can be collected
         :param already_collected_data: all data that was already collected
         :return: the collected field value

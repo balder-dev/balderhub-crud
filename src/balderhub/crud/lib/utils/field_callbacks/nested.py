@@ -1,12 +1,13 @@
 from __future__ import annotations
 from typing import Any, Iterable
 
-from balderhub.data.lib.utils import NOT_DEFINABLE, SingleDataItem
+from balderhub.data.lib.utils import NOT_DEFINABLE, SingleDataItem, LookupFieldString
 from balderhub.data.lib.scenario_features.abstract_data_item_related_feature import AbstractDataItemRelatedFeature
 
-from . import FieldCollectorCallback, FieldFillerCallback
-from .base_field_callback import BaseFieldCallback, CallbackElementObjectT
 
+from .base_field_callback import BaseFieldCallback, CallbackElementObjectT
+from .field_collector_callback import FieldCollectorCallback
+from .field_filler_callback import FieldFillerCallback
 
 class Nested(BaseFieldCallback):
     """
@@ -56,110 +57,116 @@ class Nested(BaseFieldCallback):
         return max(cur_val is not None for cur_val in values if cur_val != NOT_DEFINABLE)
 
 
-    def _execute_for_collecting(
+    def _fill_missing_values_with_not_definables(
             self,
-            feature: AbstractDataItemRelatedFeature,
-            field: str,
-            element_object: CallbackElementObjectT,
-            already_collected_data: SingleDataItem,
-            **kwargs
+            result_data,
+            all_expected_subfields
     ):
 
-        cur_data_item_type, cur_data_item_optional = feature.data_item_type.get_field_data_type(field)
-        all_expected_fields = cur_data_item_type.get_all_fields_for(nested=False)
-
-        if not isinstance(already_collected_data, feature.data_item_type):
-            raise TypeError(f'the `already_collected_data` element needs to be from type `{feature.data_item_type}`, '
-                            f'but it is from type `{type(already_collected_data)}`')
-
-        cur_data_item = already_collected_data.get_field_value(field)
-
-        # TODO WORKAROUND - WE NEED A SOLUTION FOR THAT!!!
-        if cur_data_item is None:
-            # TODO normally we should provide None everywhere!! Only NOT_DEFINABLE will be ignored!
-            return None
-
-        if not isinstance(cur_data_item, cur_data_item_type):
-            raise TypeError(f'the item data of nested field `{field}` needs to be from type `{cur_data_item_type}`, '
-                            f'but it is from type `{type(cur_data_item)}`')
-
-        result_data = {}
-        # now execute data for every field and return related data item
-        for cur_sub_field, cur_sub_callback in self._nested_data.items():
-            # validate that the field is expected
-            if cur_sub_field not in all_expected_fields:
-                raise KeyError(f'can not find mentioned field `{cur_sub_field}` in data item type '
-                               f'`{cur_data_item_type.__name__}`')
-            # the absolute lookup for the current sub field
-            cur_absolute_sub_field = f'{field}__{cur_sub_field}'
-
-            result_data[cur_sub_field] = cur_sub_callback.execute(
-                feature=feature,
-                field=cur_absolute_sub_field,
-                element_object=element_object,
-                already_collected_data=already_collected_data,
-                **kwargs
-            )
-
-        if self.__forward_none and not self.__has_other_values_than_none(result_data.values()):
-            # if all values are `None` -> return None
-            if not cur_data_item_optional:
-                raise ValueError(f'the field `{field}` of `{feature.data_item_type}` can not be None '
-                                 f'(non optional)')
-            return None
-
-        for cur_field in all_expected_fields:
+        for cur_field in all_expected_subfields:
             if cur_field in result_data.keys():
                 # already available -> skip
                 continue
             result_data[cur_field] = NOT_DEFINABLE
         return result_data
 
-    def _execute_for_filling(
-                self,
-                feature: AbstractDataItemRelatedFeature,
-                field: str,
-                element_object: CallbackElementObjectT,
-                data_to_fill: SingleDataItem,
-                **kwargs
-        ):
+    def _execute_for_collecting(
+            self,
+            feature: AbstractDataItemRelatedFeature,
+            abs_field_name: LookupFieldString,
+            element_object: CallbackElementObjectT,
+            already_collected_data: dict[str, Any],
+            **kwargs
+    ) -> dict[str, Any] | None:
 
-        cur_data_item_type, cur_data_item_optional = feature.data_item_type.get_field_data_type(field)
-        all_expected_fields = cur_data_item_type.get_all_fields_for(nested=False)
+        cur_data_item_type = feature.data_item_type.get_field_data_type(abs_field_name)
+        if not issubclass(cur_data_item_type, SingleDataItem):
+            raise TypeError(f'field with Nested callback `{cur_data_item_type}` is not a data item')
 
-        if not isinstance(data_to_fill, feature.data_item_type):
-            raise TypeError(f'the item data needs to be from type `{feature.data_item_type}`, but it is from type '
-                            f'`{type(data_to_fill)}`')
-        cur_data_item = data_to_fill.get_field_value(field)
+        all_expected_subfields = cur_data_item_type.get_all_fields_for(nested=False)
 
-        # TODO WORKAROUND - WE NEED A SOLUTION FOR THAT!!!
-        if cur_data_item is None:
-            # TODO normally we should provide None everywhere!! Only NOT_DEFINABLE will be ignored!
-            return None
-
-        if not isinstance(cur_data_item, cur_data_item_type):
-            raise TypeError(f'the item data of nested field `{field}` needs to be from type `{cur_data_item_type}`, '
-                            f'but it is from type `{type(cur_data_item)}`')
+        if not isinstance(already_collected_data, dict):
+            raise TypeError(f'the `already_collected_data` element needs to be from type `dict`, '
+                            f'but it is from type `{type(already_collected_data)}`')
 
         result_data = {}
         # now execute data for every field and return related data item
         for cur_sub_field, cur_sub_callback in self._nested_data.items():
             # validate that the field is expected
-            if cur_sub_field not in all_expected_fields:
+            if cur_sub_field not in all_expected_subfields:
                 raise KeyError(f'can not find mentioned field `{cur_sub_field}` in data item type '
                                f'`{cur_data_item_type.__name__}`')
             # the absolute lookup for the current sub field
-            cur_absolute_sub_field = f'{field}__{cur_sub_field}'
-            cur_sub_field_val = data_to_fill.get_field_value(cur_absolute_sub_field)
+            cur_absolute_sub_field = LookupFieldString(abs_field_name, cur_sub_field)
+
+            result_data[cur_sub_field] = cur_sub_callback.execute(
+                feature=feature,
+                abs_field_name=cur_absolute_sub_field,
+                element_object=element_object,
+                already_collected_data=result_data,
+                **kwargs
+            )
+
+        if self.__forward_none and not self.__has_other_values_than_none(result_data.values()):
+            # if all values are `None` -> return None
+            if not feature.data_item_type.is_optional_field(abs_field_name):
+                raise ValueError(f'the field `{abs_field_name}` of `{feature.data_item_type}` can not be None '
+                                 f'(non optional)')
+            return None
+
+        return self._fill_missing_values_with_not_definables(
+            result_data=result_data,
+            all_expected_subfields=all_expected_subfields
+        )
+
+    def _execute_for_filling(
+            self,
+            feature: AbstractDataItemRelatedFeature,
+            abs_field_name: LookupFieldString,
+            element_object: CallbackElementObjectT,
+            field_value_to_fill: dict[str, Any],
+            already_filled_data: dict[str, Any],
+            **kwargs
+        ) -> dict[str, Any] | None:
+
+        cur_data_item_type = feature.data_item_type.get_field_data_type(abs_field_name)
+        if not issubclass(cur_data_item_type, SingleDataItem):
+            raise TypeError(f'field with Nested callback `{cur_data_item_type}` is not a data item')
+
+        if not isinstance(already_filled_data, dict):
+            raise TypeError(f'the `already_collected_data` element needs to be from type `dict`, '
+                            f'but it is from type `{type(already_filled_data)}`')
+
+        if not isinstance(field_value_to_fill, dict):
+            raise TypeError(f'the item data needs to be from type `dict`, but it is from type '
+                            f'`{type(field_value_to_fill)}`')
+
+        all_expected_subfields = cur_data_item_type.get_all_fields_for(nested=False)
+
+        result_data = {}
+        # now execute data for every field and return related data item
+        for cur_sub_field, cur_sub_callback in self._nested_data.items():
+            # validate that the field is expected
+            if cur_sub_field not in all_expected_subfields:
+                raise KeyError(f'can not find mentioned field `{cur_sub_field}` in data item type '
+                               f'`{cur_data_item_type.__name__}`')
+            # the absolute lookup for the current sub field
+            if cur_sub_field not in field_value_to_fill:
+                raise KeyError(f'can not find mentioned field `{cur_sub_field}` in provided data to fill '
+                               f'dictionary: {field_value_to_fill}')
+
+            cur_absolute_sub_field = abs_field_name.add_sub_field(cur_sub_field)
+            cur_sub_field_val = field_value_to_fill[cur_sub_field]
 
             if cur_sub_field_val == NOT_DEFINABLE:
                 result_data[cur_sub_field] = NOT_DEFINABLE
             else:
                 result_data[cur_sub_field] = cur_sub_callback.execute(
                     feature=feature,
-                    field=cur_absolute_sub_field,
+                    abs_field_name=cur_absolute_sub_field,
                     element_object=element_object,
-                    data_to_fill=data_to_fill, # TODO??
+                    field_value_to_fill=cur_sub_field_val,
+                    already_filled_data=result_data,
                     **kwargs
                 )
 
@@ -169,23 +176,21 @@ class Nested(BaseFieldCallback):
 
         if self.__forward_none and not self.__has_other_values_than_none(result_data.values()):
             # if all values are `None` -> return None
-            if not cur_data_item_optional:
-                raise ValueError(f'the field `{field}` of `{feature.data_item_type}` can not be None '
+            if not feature.data_item_type.is_optional_field(abs_field_name):
+                raise ValueError(f'the field `{abs_field_name}` of `{feature.data_item_type}` can not be None '
                                  f'(non optional)')
             return None
 
-        for cur_field in all_expected_fields:
-            if cur_field in result_data.keys():
-                # already available -> skip
-                continue
-            result_data[cur_field] = NOT_DEFINABLE
-        return result_data
+        return self._fill_missing_values_with_not_definables(
+            result_data=result_data,
+            all_expected_subfields=all_expected_subfields
+        )
 
     # pylint: disable=arguments-differ
     def execute(
             self,
             feature: AbstractDataItemRelatedFeature,
-            field: str,
+            abs_field_name: str,
             element_object: CallbackElementObjectT,
             **kwargs
     ) -> Any:
@@ -193,12 +198,14 @@ class Nested(BaseFieldCallback):
         Executes the nested statement with all its inner callbacks.
 
         :param feature: the balder feature that calls this callback
-        :param field: the field name
+        :param abs_field_name: the field name
         :param element_object: the working element describing one single container the data can be collected or filled
                                in
         """
+        abs_field_name = LookupFieldString(abs_field_name)
+
         if self.inner_callback_type == FieldCollectorCallback:
-            return self._execute_for_collecting(feature, field, element_object, **kwargs)
+            return self._execute_for_collecting(feature, abs_field_name, element_object, **kwargs)
         if self.inner_callback_type == FieldFillerCallback:
-            return self._execute_for_filling(feature, field, element_object, **kwargs)
+            return self._execute_for_filling(feature, abs_field_name, element_object, **kwargs)
         raise TypeError(f'the inner callback type `{self.inner_callback_type}` is not supported')

@@ -1,17 +1,18 @@
-from typing import Dict, TypeVar
+from typing import TypeVar, Any
 
-from balderhub.data.lib.utils import SingleDataItem, NOT_DEFINABLE
+from balderhub.data.lib.utils import NOT_DEFINABLE
+from balderhub.data.lib.utils.functions import full_dictionary_is_not_definable
 
-from balderhub.crud.lib.utils.exceptions import CallbackExecutionError
 from balderhub.crud.lib import scenario_features
+from balderhub.crud.lib.utils.exceptions import CallbackExecutionError
 from balderhub.crud.lib.utils.field_callbacks import FieldFillerCallback
 
 ElementContainerTypeT = TypeVar('ElementContainerTypeT')
 
 
-class SingleDataCreatorFeature(scenario_features.SingleDataCreatorFeature):
+class SingleUpdaterFeature(scenario_features.SingleUpdaterFeature):
     """
-    Setup creating feature with field callback mapping
+    Setup update feature with field callback mapping
     """
 
     def item_mapping(self) -> dict[str, FieldFillerCallback]:
@@ -25,7 +26,7 @@ class SingleDataCreatorFeature(scenario_features.SingleDataCreatorFeature):
         """
         raise NotImplementedError
 
-    def fill(self, data_class: SingleDataItem):
+    def fill(self, data_class_dict: dict[str, Any]) -> dict[str, Any]:
 
         element_data = {}
 
@@ -35,13 +36,15 @@ class SingleDataCreatorFeature(scenario_features.SingleDataCreatorFeature):
 
         # iterate over all existing fields
         for cur_field_name in self.data_item_type.get_all_fields_for(nested=False):
-            cur_field_val = data_class.get_field_value(cur_field_name)
+            cur_field_val = data_class_dict[cur_field_name]
 
             # the field needs to be in `self.item_mapping` or in `self.non_fillable_resolved_fields`
             if self.is_non_fillable_field(cur_field_name):
                 element_data[cur_field_name] = NOT_DEFINABLE
-            elif cur_field_val == NOT_DEFINABLE or \
-                    isinstance(cur_field_val, SingleDataItem) and cur_field_val.all_fields_are_not_definable():
+            elif cur_field_val == NOT_DEFINABLE:
+                # do not call it for values that are NOT_DEFINABLE
+                element_data[cur_field_name] = NOT_DEFINABLE
+            elif isinstance(cur_field_val, dict) and full_dictionary_is_not_definable(cur_field_val):
                 # do not forward it
                 element_data[cur_field_name] = NOT_DEFINABLE
             elif cur_field_name in cur_item_mapping.keys():
@@ -52,7 +55,8 @@ class SingleDataCreatorFeature(scenario_features.SingleDataCreatorFeature):
                         self,
                         cur_field_name,
                         element_container,
-                        data_to_fill=data_class
+                        field_value_to_fill=cur_field_val,
+                        already_filled_data=element_data
                     )
                 except Exception as exc:
                     raise CallbackExecutionError(
@@ -62,4 +66,4 @@ class SingleDataCreatorFeature(scenario_features.SingleDataCreatorFeature):
                 raise KeyError(f'not mentioned field `{cur_field_name}` in {self.__class__.__name__} for data item '
                                f'`{self.data_item_type}`')
 
-        return self.data_item_type.create_as_nested(**element_data)
+        return element_data
