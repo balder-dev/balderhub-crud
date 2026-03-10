@@ -1,11 +1,14 @@
-from .multiple_data_reader_feature import MultipleDataReaderFeature
-from .single_data_reader_feature import SingleDataReaderFeature
-from .single_data_creator_feature import SingleDataCreatorFeature
-from .single_data_updator_feature import SingleDataUpdaterFeature
+from .multiple_reader_feature import MultipleReaderFeature
+from .single_creator_feature import SingleCreatorFeature
+from .single_reader_feature import SingleReaderFeature
+from .single_updater_feature import SingleUpdaterFeature
+
+
+from . import factories
 
 __all__ = [
-    'MultipleDataReaderFeature',
-    'SingleDataReaderFeature',
-    'SingleDataCreatorFeature',
-    'SingleDataUpdaterFeature'
+    'MultipleReaderFeature',
+    'SingleCreatorFeature',
+    'SingleReaderFeature',
+    'SingleUpdaterFeature',
 ]

@@ -1,9 +1,9 @@
 import balder
-from balderhub.data.lib.scenario_features import AllMultipleDataConfig, AccessibleMultipleDataConfig
-from balderhub.crud.lib.scenario_features.multiple_data_reader_feature import MultipleDataReaderFeature
+import balderhub.data.lib.scenario_features
+from balderhub.crud.lib.scenario_features.multiple_reader_feature import MultipleReaderFeature
 
 
-class ScenarioListCompare(balder.Scenario):
+class ScenarioMultipleRead(balder.Scenario):
     """
     Comparing test scenario that validates if accessible data is collectable with the
     :class:`MultipleDataReaderFeature`.
@@ -11,14 +11,14 @@ class ScenarioListCompare(balder.Scenario):
 
     class PointOfTruth(balder.Device):
         """point of truth - holds all expected data"""
-        data = AllMultipleDataConfig()
+        # todo we do not need this device right?
 
     @balder.connect('PointOfTruth', over_connection=balder.Connection)
     class DeviceUnderTest(balder.Device):
         """the device under test at which we can read the data list and specify the accessible data (f.e. because of
         permission restrictions or user-permission scoped data)"""
-        accessible_data = AccessibleMultipleDataConfig()
-        reader = MultipleDataReaderFeature()
+        accessible_data = balderhub.data.lib.scenario_features.AccessibleInitialDataConfig()
+        reader = MultipleReaderFeature()
 
     def test_compare_data(self):
         """
@@ -39,6 +39,6 @@ class ScenarioListCompare(balder.Scenario):
             device_data,
             ignore_order=True,
             ignore_field_lookups=self.DeviceUnderTest.reader.resolved_non_collectable_fields,
-            allow_non_definable=True  # TODO do we want to allow NOT_DEFINABLE here?
+            allow_non_definable=True
         )
         assert not compare_result, f"compare function returns issues: {compare_result}"

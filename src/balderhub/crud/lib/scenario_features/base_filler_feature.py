@@ -1,18 +1,17 @@
 from __future__ import annotations
-from typing import List
+from typing import Any
 
-from balderhub.data.lib.utils import SingleDataItem, ResponseMessageList
-from balderhub.data.lib.utils.functions import field_contained_in
+from balderhub.data.lib.utils import ResponseMessageList
 
-from balderhub.crud.lib.scenario_features.base_interactor_feature import BaseInteractorFeature
+from .base_interactor_feature import BaseInteractorFeature
 
 
-class SingleDataFillerFeature(BaseInteractorFeature):
+class BaseFillerFeature(BaseInteractorFeature):
     """
-    Base scenario feature for filling a single data item.
+    Base scenario feature for filling fields of data items.
     """
 
-    def get_non_fillable_fields(self) -> List[str]:
+    def get_non_fillable_fields(self) -> list[str]:
         """
         This method should return a list of field names that are not fillable with this feature. Note that the method
         will assign the ``NOT_DEFINABLE`` object to the filled-field object.
@@ -24,7 +23,7 @@ class SingleDataFillerFeature(BaseInteractorFeature):
         """
         return []
 
-    def get_optional_fields(self) -> List[str]:
+    def get_optional_fields(self) -> list[str]:
         """
         This method returns a list of field names that are optional.
 
@@ -35,8 +34,7 @@ class SingleDataFillerFeature(BaseInteractorFeature):
         """
         result = []
         for cur_field in self.data_item_type.get_all_fields_for(nested=True):
-            _, is_optional = self.data_item_type.get_field_data_type(cur_field)
-            if is_optional:
+            if self.data_item_type.is_optional_field(cur_field):
                 result.append(cur_field)
         return result
 
@@ -48,11 +46,10 @@ class SingleDataFillerFeature(BaseInteractorFeature):
         :return: True if it is non-collectable, False otherwise
         """
         # TODO do we need this method for MANDATORY/OPTIONAL/FILLABLE too?
-        field = self.data_item_type.get_field(field_lookup)
-        return field_contained_in(field=field, list_of_resolved_field=self.resolved_non_fillable_fields)
+        return self.data_item_type.all_field_lookups_are_within(field_lookup, self.resolved_non_fillable_fields)
 
     @property
-    def resolved_non_fillable_fields(self) -> List[str]:
+    def resolved_non_fillable_fields(self) -> list[str]:
         """
         :return: a full resolved list of fields that are not fillable with this feature
         """
@@ -62,14 +59,14 @@ class SingleDataFillerFeature(BaseInteractorFeature):
         return result
 
     @property
-    def resolved_fillable_fields(self) -> List[str]:
+    def resolved_fillable_fields(self) -> list[str]:
         """
         :return: a full resolved list of fields that are fillable with this feature
         """
         return list(set(self.data_item_type.get_all_fields_for()) - set(self.resolved_non_fillable_fields))
 
     @property
-    def resolved_mandatory_fields(self) -> List[str]:
+    def resolved_mandatory_fields(self) -> list[str]:
         """
         :return: a full resolved list of fields that needs to be provided (means: if there is no value given with this
                  creator feature, it expects that there will be an error)
@@ -77,7 +74,7 @@ class SingleDataFillerFeature(BaseInteractorFeature):
         return list(set(self.resolved_fillable_fields) - set(self.resolved_optional_fields))
 
     @property
-    def resolved_optional_fields(self) -> List[str]:
+    def resolved_optional_fields(self) -> list[str]:
         """
         :return: a full resolved list of fields that optionally (means: if there is no value given with this
                  filler feature, it will not result into an error)
@@ -94,8 +91,7 @@ class SingleDataFillerFeature(BaseInteractorFeature):
             real_optional_field = subkey
             while True:
                 # check if this sub-field can be optional
-                _, is_optional = self.data_item_type.get_field_data_type(real_optional_field)
-                if is_optional:
+                if self.data_item_type.is_optional_field(real_optional_field):
                     # passed
                     break
                 cut_idx = real_optional_field.rfind("__")
@@ -107,37 +103,15 @@ class SingleDataFillerFeature(BaseInteractorFeature):
                 real_optional_field = real_optional_field[:cut_idx]
         return result
 
-
     def get_expected_error_message_for_missing_mandatory_field(
             self,
-            data_item: SingleDataItem,
+            data: dict[str, Any],
             without_mandatory_field: str
     ) -> ResponseMessageList:
         """
         This method returns a list of expected error messages if one mandatory field is missing.
-        :param data_item: the invalid data item that is filled
+        :param data: the invalid data item that was filled
         :param without_mandatory_field: the mandatory field that is missing.
         :return: a list of expected error messages
         """
         raise NotImplementedError
-
-    def load(self):
-        """
-        Loads the system-under-test to be in the state for filling the data item.
-        """
-        raise NotImplementedError
-
-    def fill(self, data_class: SingleDataItem):
-        """
-        This method fills all the data of the provided data class
-        :param data_class: the value providing data class that should be filled in
-        :return: todo
-        """
-        raise NotImplementedError()
-
-    def save(self):
-        """
-        This method executes the final submit command to trigger the saving of the filled data items
-        :return:
-        """
-        raise NotImplementedError()
