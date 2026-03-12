@@ -18,7 +18,7 @@ class SingleUpdateFieldExampleProvider(BaseFieldExampleProvider):
         data_item: SingleDataItem
         field_name: str
         new_field_value: Any
-        expected_response_messages: ResponseMessageList = ResponseMessageList()
+        expected_response_messages: ResponseMessageList = dataclasses.field(default_factory=ResponseMessageList)
 
         def __str__(self):
             return f"FieldValueExample<{self.field_name}: {self.name}>"

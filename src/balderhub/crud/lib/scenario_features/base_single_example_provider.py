@@ -13,7 +13,7 @@ class BaseSingleExampleProvider(BaseExampleProvider):
         """helper dataclass to describe a single named example"""
         name: str
         data_item: SingleDataItem
-        expected_response_messages: ResponseMessageList = ResponseMessageList()
+        expected_response_messages: ResponseMessageList = dataclasses.field(default_factory=ResponseMessageList)
 
     def get_valid_examples(self) -> list[NamedExample]:
         raise NotImplementedError()

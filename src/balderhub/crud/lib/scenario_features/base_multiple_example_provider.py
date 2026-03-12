@@ -20,7 +20,7 @@ class BaseMultipleExampleProvider(BaseExampleProvider):
         """named example element returned by a multiple example provider feature"""
         name: str
         items: list[BaseMultipleExampleProvider.NamedExampleItem]
-        expected_response_messages: ResponseMessageList = ResponseMessageList()
+        expected_response_messages: ResponseMessageList = dataclasses.field(default_factory=ResponseMessageList)
 
 
     def get_valid_examples(self) -> list[NamedExample]:
