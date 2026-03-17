@@ -97,7 +97,7 @@ class Nested(BaseFieldCallback):
                 raise KeyError(f'can not find mentioned field `{cur_sub_field}` in data item type '
                                f'`{cur_data_item_type.__name__}`')
             # the absolute lookup for the current sub field
-            cur_absolute_sub_field = LookupFieldString(abs_field_name, cur_sub_field)
+            cur_absolute_sub_field = abs_field_name.add_sub_field(cur_sub_field)
 
             result_data[cur_sub_field] = cur_sub_callback.execute(
                 feature=feature,
