@@ -24,16 +24,20 @@ class MultipleBookReader(balderhub.crud.lib.setup_features.MultipleReaderFeature
         self._elements = []
         for cur_book in self.Dut.sim.dut_simulator.get_all_books():
             author = self.Dut.sim.dut_simulator.get_author(cur_book.author__id)
-            category = self.Dut.sim.dut_simulator.get_category(cur_book.category__id)
-            self._elements.append({
+            category = self.Dut.sim.dut_simulator.get_category(cur_book.category__id) if cur_book.category__id is not None else None
+            element = {
                 'id': cur_book.id,
                 'title': cur_book.title,
                 'author__id': author.id,
                 'author__first_name': author.first_name,
                 'author__last_name': author.last_name,
-                'category__id': category.id,
-                'category__name': category.name,
-            })
+            }
+            if category is not None:
+                element['category__id'] = category.id
+                element['category__name'] = category.name
+            else:
+                element['category'] = None
+            self._elements.append(element)
 
     def get_list_item_element_container(self) -> list[data_items.BookDataItem]:
         return self._elements

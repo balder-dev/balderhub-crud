@@ -25,16 +25,19 @@ class SingleBookReader(SingleReaderFeature):
     def load(self, unique_identification_value: Any):
         book = self.Dut.dut.dut_simulator.get_book(unique_identification_value)
         author = self.Dut.dut.dut_simulator.get_author(book.author__id)
-        category = self.Dut.dut.dut_simulator.get_category(book.category__id)
+        category = self.Dut.dut.dut_simulator.get_category(book.category__id) if book.category__id is not None else None
         self._loaded_data = {
             'id': book.id,
             'title': book.title,
             'author__id': author.id,
             'author__first_name': author.first_name,
             'author__last_name': author.last_name,
-            'category__id': category.id,
-            'category__name': category.name,
         }
+        if category is not None:
+            self._loaded_data['category__id'] = category.id
+            self._loaded_data['category__name'] = category.name
+        else:
+            self._loaded_data['category'] = None
 
     def get_element_container(self) -> data_items.BookDataItem:
         return self._loaded_data

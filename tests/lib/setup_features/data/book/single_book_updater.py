@@ -28,7 +28,7 @@ class SingleBookUpdator(SingleUpdaterFeature):
         self._data: Union[dict[str, Any], None] = None
         self._last_exception = None
 
-    def load(self, unique_identification_value: Any):
+    def load(self, unique_identification_value: Any, **kwargs):
         self._data = {}
         self._id_to_update = unique_identification_value
 
@@ -49,7 +49,8 @@ class SingleBookUpdator(SingleUpdaterFeature):
                 id=InjectIntoDictCallback()
             ),
             'category': Nested(
-                id=InjectIntoDictCallback()
+                id=InjectIntoDictCallback(),
+                _unset_callback=InjectIntoDictCallback()
             )
         }
 
