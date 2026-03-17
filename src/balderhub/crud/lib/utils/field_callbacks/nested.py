@@ -13,10 +13,10 @@ class Nested(BaseFieldCallback):
     """
     Helper class to define nested field callbacks.
     """
-    def __init__(self, __forward_none = True, **kwargs) -> None:
+    def __init__(self, _forward_none = True, **kwargs) -> None:
         super().__init__(**kwargs)
         self._nested_data = kwargs
-        self.__forward_none = __forward_none
+        self._forward_none = _forward_none
         self._inner_callback_type = None
 
         # now determine if the group is either only-collecting or only-filling
@@ -107,7 +107,7 @@ class Nested(BaseFieldCallback):
                 **kwargs
             )
 
-        if self.__forward_none and not self.__has_other_values_than_none(result_data.values()):
+        if self._forward_none and not self.__has_other_values_than_none(result_data.values()):
             # if all values are `None` -> return None
             if not feature.data_item_type.is_optional_field(abs_field_name):
                 raise ValueError(f'the field `{abs_field_name}` of `{feature.data_item_type}` can not be None '
@@ -174,7 +174,7 @@ class Nested(BaseFieldCallback):
         if all_fields_are_not_definable:
             return NOT_DEFINABLE
 
-        if self.__forward_none and not self.__has_other_values_than_none(result_data.values()):
+        if self._forward_none and not self.__has_other_values_than_none(result_data.values()):
             # if all values are `None` -> return None
             if not feature.data_item_type.is_optional_field(abs_field_name):
                 raise ValueError(f'the field `{abs_field_name}` of `{feature.data_item_type}` can not be None '
