@@ -47,7 +47,8 @@ class SingleBookCreator(SingleCreatorFeature):
                 id=InjectIntoDictCallback()
             ),
             'category': Nested(
-                id=InjectIntoDictCallback()
+                id=InjectIntoDictCallback(),
+                _unset_callback=InjectIntoDictCallback()
             )
         }
 

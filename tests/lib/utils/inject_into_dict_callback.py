@@ -38,5 +38,7 @@ class InjectIntoDictCallback(FieldFillerCallback):
             already_filled_data: dict[str, Any],
             **kwargs
     ) -> Any:
+        if str(abs_field_name) == 'category':
+            abs_field_name = LookupFieldString('category', 'id')
         element_object[str(abs_field_name)] = UNSET
         return UNSET

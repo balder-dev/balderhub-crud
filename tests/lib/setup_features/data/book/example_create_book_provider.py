@@ -28,6 +28,11 @@ class ExampleCreateBookProvider(balderhub.crud.lib.scenario_features.SingleCreat
                 name='Simple Book',
                 data_item=data_items.BookDataItem(id=NOT_DEFINABLE, title='The Hobbit', author=author, category=category),
                 expected_response_messages=ResponseMessageList([])
+            ),
+            self.NamedExample(
+                name='Book without a category',
+                data_item=data_items.BookDataItem(id=NOT_DEFINABLE, title='The Hobbit', author=author, category=None),
+                expected_response_messages=ResponseMessageList([])
             )
         ]
 
@@ -64,13 +69,6 @@ class ExampleCreateBookProvider(balderhub.crud.lib.scenario_features.SingleCreat
                                              category=data_items.BookCategoryDataItem(id=999999, name=NOT_DEFINABLE)),
                 expected_response_messages=ResponseMessageList(
                     [ResponseMessage(text='The category is not known - you need to create it first')]
-                )
-            ),
-            self.NamedExample(
-                name='Book without a category',
-                data_item=data_items.BookDataItem(id=NOT_DEFINABLE, title='The Hobbit', author=author, category=NOT_DEFINABLE),
-                expected_response_messages=ResponseMessageList(
-                    [ResponseMessage(text="DutSimulator.add_book() missing 1 required positional argument: 'category__id'")]
                 )
             )
         ]

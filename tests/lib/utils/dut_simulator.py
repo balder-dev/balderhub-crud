@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import dataclasses
-from typing import Any, Dict, NamedTuple
+from typing import Any, Dict, NamedTuple, Optional
 
 from balderhub.data.lib.utils import NOT_DEFINABLE
 
@@ -26,7 +26,7 @@ class DutSimulator:
         id: int
         title: str
         author__id: int
-        category__id: int
+        category__id: Optional[int] = None
 
     def __init__(self):
         self._all_authors: dict[int, DutSimulator.Author] = dict()
@@ -106,17 +106,18 @@ class DutSimulator:
 
         del self._all_categories[category_id]
 
-    def add_book(self, title: str, author__id: int, category__id: int):
+    def add_book(self, title: str, author__id: int, category__id: Optional[int] = None):
         if not self._is_non_empty_string(title):
             raise ValueError('The book needs a title.')
         if author__id in [None, NOT_DEFINABLE, UNSET]:
             raise ValueError('The book needs an author.')
         if author__id not in self._all_authors.keys():
             raise ValueError('The author is not known - you need to create it first')
-        if category__id in [None, NOT_DEFINABLE, UNSET]:
-            raise ValueError('The book needs a category.')
-        if category__id not in self._all_categories.keys():
-            raise ValueError('The category is not known - you need to create it first')
+        if category__id is not None and category__id not in [NOT_DEFINABLE, UNSET]:
+            if category__id not in self._all_categories.keys():
+                raise ValueError('The category is not known - you need to create it first')
+        if category__id == UNSET:
+            category__id = None
 
         new_id = 1 if len(self._all_books) == 0 else max(self._all_books.keys()) + 1
         self._all_books[new_id] = self.Book(id=new_id, title=title, author__id=author__id, category__id=category__id)
@@ -137,10 +138,13 @@ class DutSimulator:
             if data_to_update['author__id'] not in self._all_authors.keys():
                 raise ValueError('The author is not known - you need to create it first')
         if 'category__id' in data_to_update:
-            if data_to_update['category__id'] in [None, NOT_DEFINABLE, UNSET]:
-                raise ValueError('The book needs a category.')
-            if data_to_update['category__id'] not in self._all_categories.keys():
-                raise ValueError('The category is not known - you need to create it first')
+            category_id = data_to_update['category__id']
+
+            if category_id is not None and category_id not in [NOT_DEFINABLE, UNSET]:
+                if category_id not in self._all_categories.keys():
+                    raise ValueError('The category is not known - you need to create it first')
+            if category_id == UNSET:
+                data_to_update['category__id'] = None
 
         for cur_key in data_to_update.keys():
             if not cur_key in ['title', 'author__id', 'category__id']:

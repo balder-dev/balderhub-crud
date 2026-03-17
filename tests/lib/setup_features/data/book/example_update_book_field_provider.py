@@ -41,7 +41,7 @@ class ExampleUpdateBookFieldProvider(balderhub.crud.lib.scenario_features.Single
                     data_item=self.read_example.get_first_valid_example().data_item,
                     field_name=field,
                     new_field_value=3
-                )
+                ),
             ]
         return []
 
@@ -83,15 +83,6 @@ class ExampleUpdateBookFieldProvider(balderhub.crud.lib.scenario_features.Single
 
         if field == 'category__id':
             return [
-                self.NamedExample(
-                    name="Empty Category",
-                    data_item=self.read_example.get_first_valid_example().data_item,
-                    field_name=field,
-                    new_field_value=UNSET,
-                    expected_response_messages=ResponseMessageList(
-                        [ResponseMessage(text='The book needs a category.')]
-                    )
-                ),
                 self.NamedExample(
                     name="Category that does not exist",
                     data_item=self.read_example.get_first_valid_example().data_item,

@@ -20,4 +20,12 @@ class GrabFromDictCallback(FieldCollectorCallback):
             already_collected_data: SingleDataItem,
             **kwargs
     ) -> Any:
+        if str(abs_field_name) not in element_object:
+            while True:
+                upper_path_field_keys = abs_field_name.split_field_keys[:-1]
+                if len(upper_path_field_keys) == 0:
+                    raise ValueError('can not find a key')
+                abs_field_name = LookupFieldString(*upper_path_field_keys)
+                if str(abs_field_name) in element_object:
+                    return element_object[str(abs_field_name)]
         return element_object[str(abs_field_name)]
