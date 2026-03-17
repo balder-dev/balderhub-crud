@@ -42,6 +42,7 @@ class MultipleReaderFeature(scenario_features.MultipleReaderFeature):
                 if self.is_non_collectable_field(cur_field_name):
                     # ignore - is already NOT_DEFINABLE
                     result_data[cur_field_name] = NOT_DEFINABLE
+                    continue
                 if cur_field_name not in cur_item_mapping.keys():
                     raise KeyError(f'not mentioned field `{cur_field_name}` in {self.__class__.__name__} for data item '
                                    f'`{cur_list_item_element_container}`')
