@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Any
 
-from balderhub.data.lib.utils import ResponseMessageList
+from balderhub.data.lib.utils import ResponseMessageList, LookupFieldString
 
 from .base_interactor_feature import BaseInteractorFeature
 
@@ -35,8 +35,18 @@ class BaseFillerFeature(BaseInteractorFeature):
         result = []
         for cur_field in self.data_item_type.get_all_fields_for(nested=True):
             if self.data_item_type.is_optional_field(cur_field):
-                result.append(cur_field)
-        return result
+                lookup = LookupFieldString(cur_field)
+                while True:
+                    if self.data_item_type.is_optional_field(lookup, consider_upper_optionals_too=False):
+                        result.append(lookup)
+                        break
+                    remaining_lookup_path_pieces = lookup.split_field_keys[:-1]
+                    if len(remaining_lookup_path_pieces) == 0:
+                        raise ValueError('unexpected error: `is_optional_field` has not detect this field as optional, '
+                                         'but no optional marked item detected')
+                    lookup = LookupFieldString(*remaining_lookup_path_pieces)
+
+        return list(set(result))
 
     def is_non_fillable_field(self, field_lookup: str) -> bool:
         """
