@@ -4,18 +4,21 @@ from typing import Any, Iterable
 from balderhub.data.lib.utils import NOT_DEFINABLE, SingleDataItem, LookupFieldString
 from balderhub.data.lib.scenario_features.abstract_data_item_related_feature import AbstractDataItemRelatedFeature
 
-
 from .base_field_callback import BaseFieldCallback, CallbackElementObjectT
 from .field_collector_callback import FieldCollectorCallback
 from .field_filler_callback import FieldFillerCallback
+from .. import UNSET
+
 
 class Nested(BaseFieldCallback):
     """
     Helper class to define nested field callbacks.
     """
-    def __init__(self, _forward_none = True, **kwargs) -> None:
+
+    def __init__(self, _forward_none=True, _unset_callback=None, **kwargs) -> None:
         super().__init__(**kwargs)
         self._nested_data = kwargs
+        self._unset_callback = _unset_callback
         self._forward_none = _forward_none
         self._inner_callback_type = None
 
@@ -55,7 +58,6 @@ class Nested(BaseFieldCallback):
     @classmethod
     def __has_other_values_than_none(cls, values: Iterable) -> bool:
         return max(cur_val is not None for cur_val in values if cur_val != NOT_DEFINABLE)
-
 
     def _fill_missing_values_with_not_definables(
             self,
@@ -127,7 +129,7 @@ class Nested(BaseFieldCallback):
             field_value_to_fill: dict[str, Any],
             already_filled_data: dict[str, Any],
             **kwargs
-        ) -> dict[str, Any] | None:
+    ) -> dict[str, Any] | None:
 
         cur_data_item_type = feature.data_item_type.get_field_data_type(abs_field_name)
         if not issubclass(cur_data_item_type, SingleDataItem):
@@ -136,6 +138,20 @@ class Nested(BaseFieldCallback):
         if not isinstance(already_filled_data, dict):
             raise TypeError(f'the `already_collected_data` element needs to be from type `dict`, '
                             f'but it is from type `{type(already_filled_data)}`')
+
+        if field_value_to_fill is UNSET or \
+                feature.data_item_type.is_optional_field(abs_field_name) and field_value_to_fill is None:
+            if self._unset_callback is None:
+                raise ValueError(f'missing unset-callback for field {abs_field_name} of {cur_data_item_type}')
+            self._unset_callback.execute(
+                feature=feature,
+                abs_field_name=abs_field_name,
+                element_object=element_object,
+                field_value_to_fill=field_value_to_fill,
+                already_filled_data=already_filled_data,
+                **kwargs
+            )
+            return None
 
         if not isinstance(field_value_to_fill, dict):
             raise TypeError(f'the item data needs to be from type `dict`, but it is from type '
@@ -160,15 +176,16 @@ class Nested(BaseFieldCallback):
 
             if cur_sub_field_val == NOT_DEFINABLE:
                 result_data[cur_sub_field] = NOT_DEFINABLE
-            else:
-                result_data[cur_sub_field] = cur_sub_callback.execute(
-                    feature=feature,
-                    abs_field_name=cur_absolute_sub_field,
-                    element_object=element_object,
-                    field_value_to_fill=cur_sub_field_val,
-                    already_filled_data=result_data,
-                    **kwargs
-                )
+                continue
+
+            result_data[cur_sub_field] = cur_sub_callback.execute(
+                feature=feature,
+                abs_field_name=cur_absolute_sub_field,
+                element_object=element_object,
+                field_value_to_fill=cur_sub_field_val,
+                already_filled_data=result_data,
+                **kwargs
+            )
 
         all_fields_are_not_definable = min(cur_val == NOT_DEFINABLE for cur_val in result_data.values())
         if all_fields_are_not_definable:
