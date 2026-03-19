@@ -35,7 +35,8 @@ class FieldFillerCallback(BaseFieldCallback, ABC):
         """
         abs_field_name = LookupFieldString(abs_field_name)
 
-        if field_value_to_fill is UNSET:
+        if field_value_to_fill is UNSET or \
+                feature.data_item_type.is_optional_field(abs_field_name) and field_value_to_fill is None:
             return self._unset_field(
                 feature=feature,
                 abs_field_name=abs_field_name,
