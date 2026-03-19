@@ -2,7 +2,7 @@ import dataclasses
 
 from balderhub.data.lib.utils import SingleDataItem, ResponseMessageList
 
-from balderhub.crud.lib.scenario_features import BaseExampleProvider
+from balderhub.crud.lib.scenario_features.base_example_provider import BaseExampleProvider
 
 
 class BaseSingleExampleProvider(BaseExampleProvider):
