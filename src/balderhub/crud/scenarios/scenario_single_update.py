@@ -23,6 +23,7 @@ class ScenarioSingleUpdate(balder.Scenario):
         permission restrictions or user-permission scoped data)"""
         # TODO add another scenario that validates data with single-reader
         list_reader = scenario_features.MultipleReaderFeature()
+        single_example = scenario_features.SingleReadExampleProvider()
         updater = scenario_features.SingleUpdaterFeature()
         example = scenario_features.SingleUpdateFieldExampleProvider()
 
@@ -64,6 +65,54 @@ class ScenarioSingleUpdate(balder.Scenario):
 
         data_to_fill = pot_data.__class__.create_non_definable()
         data_to_fill.set_field_value(cur_fillable_field, valid_example.new_field_value)
+
+        self.DeviceUnderTest.updater.load(unique_identification_value=pot_data.get_unique_identification())
+        self.DeviceUnderTest.updater.fill(data_to_fill.model_dump())
+        self.DeviceUnderTest.updater.save()
+
+        error_messages = self.DeviceUnderTest.updater.get_active_error_messages()
+        assert not error_messages, f"detect the following unexpected error messages: {error_messages}"
+
+        # now make sure that data is updated
+        self.DeviceUnderTest.list_reader.load()
+        all_items_after = self.DeviceUnderTest.list_reader.collect()
+        all_items_after_copy = all_items_after.copy()
+
+        item_to_update_in_after = all_items_after.get_by_identifier(pot_data.get_unique_identification())
+        all_items_after_copy.remove(item_to_update_in_after)
+
+        assert new_expected_data.compare(
+            item_to_update_in_after,
+            allow_non_definable=True   # TODO allow Non-Definable here?
+        )
+
+        assert all_items_before_copy.compare(all_items_after_copy)
+
+
+    @balder.parametrize_by_feature(
+        'unset_optional_field', (DeviceUnderTest, 'updater', 'get_optional_fields')
+    )
+    def test_unset_optional_field(self, unset_optional_field):
+        """
+        This test tries to UNSET an existing field that is marked as optional. It will be auto parametrized and
+        executed for all optional fields (provided by :meth:`SingleUpdaterFeature.get_optional_fields`).
+
+        :param unset_optional_field: parametrized optional field name (provided by
+                                       :meth:`SingleUpdaterFeature.get_optional_fields`)
+        """
+        pot_data = self.DeviceUnderTest.single_example.get_first_valid_example().data_item
+        self.DeviceUnderTest.list_reader.load()
+        all_items_before = self.DeviceUnderTest.list_reader.collect()
+        all_items_before_copy = all_items_before.copy()
+        item_to_update_in_before = all_items_before.get_by_identifier(pot_data.get_unique_identification())
+        all_items_before_copy.remove(item_to_update_in_before)
+        assert pot_data.compare(item_to_update_in_before, allow_non_definable=True)  # TODO allow Non-Definable here?
+
+        new_expected_data = copy.deepcopy(pot_data)
+        new_expected_data.set_field_value(unset_optional_field, None)
+
+        data_to_fill = pot_data.__class__.create_non_definable()
+        data_to_fill.set_field_value(unset_optional_field, None)
 
         self.DeviceUnderTest.updater.load(unique_identification_value=pot_data.get_unique_identification())
         self.DeviceUnderTest.updater.fill(data_to_fill.model_dump())
