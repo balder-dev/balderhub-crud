@@ -128,13 +128,13 @@ class ScenarioSingleCreate(balder.Scenario):
         assert all_items_after.compare(all_items_before), "existing data has changed"
 
     @balder.parametrize_by_feature(
-        'without_optional_field', (DeviceUnderTest, 'creator', 'resolved_optional_fields')
+        'without_optional_field', (DeviceUnderTest, 'creator', 'get_optional_fields')
     )
     def test_create_valid_without_single_optional_field(self, without_optional_field: str):
         """
         This test creates a new data item in the device-under-test and validates its creation. It uses the first valid
         example provided by :meth:`ExampleDataProviderFeature.get_valid_examples`, but without one optional field given
-        by `without_optional_field` (provided with :meth:`SingleDataCreatorFeature.resolved_optional_fields`. This is
+        by `without_optional_field` (provided with :meth:`SingleDataCreatorFeature.get_optional_fields`. This is
         expected to run successfully without any error.
         The test checks that the data items before and after the creation don't change (all fillable and
         collectable data fields were checked here).
@@ -152,36 +152,14 @@ class ScenarioSingleCreate(balder.Scenario):
             At the moment this feature does not validate the optional field (the value will be set to `NOT_DEFINABLE`).
 
         :param without_optional_field: parametrized optional field name (provided by
-                                       :meth:`SingleDataCreatorFeature.resolved_optional_fields`)
+                                       :meth:`SingleDataCreatorFeature.get_optional_fields`)
         """
         # TODO validate the optional field value - if it is empty or None?
         valid_example = self.DeviceUnderTest.example.get_valid_examples()[0]
 
-        # now get the field that needs to be set to None
-        #  NOTE: This can be a higher nested field, because the identifier of an object (f.e. the id) is a nested field
-        #        of the object that is actually set to None. The method
-        #        :meth:`SingleDataCreatorFeature.resolved_optional_fields` does only return the key that has a valid
-        #        callback, but the optional field can be higher. -> We are looking forward the next higher field that
-        #        can be optional!
-        real_optional_field = without_optional_field
-        while True:
-            # check if this sub-field can be optional
-            if valid_example.data_item.__class__.is_optional_field(real_optional_field):
-                logger.info(f'set `None` to field value `{real_optional_field}`, because this is the higher field that '
-                            f'can be optional')
-                break
-            cut_idx = real_optional_field.rfind("__")
-            if cut_idx == -1:
-                # should never be called except the additional check in
-                # :meth:`SingleDataCreatorFeature.resolved_optional_fields` was overwritten
-                raise ValueError('invalid optional field detected - can not be None because it or higher fields are '
-                                 'not optional')
-            real_optional_field = real_optional_field[:cut_idx]
-
-
         expected_data = copy.deepcopy(valid_example.data_item)
         expected_data.set_field_value(
-            real_optional_field,
+            str(without_optional_field),
             None,
             only_change_this_value=True
         )
