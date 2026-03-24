@@ -57,7 +57,13 @@ class Nested(BaseFieldCallback):
 
     @classmethod
     def __has_other_values_than_none(cls, values: Iterable) -> bool:
-        return max(cur_val is not None for cur_val in values if cur_val != NOT_DEFINABLE)
+        for cur_val in values:
+            if cur_val == NOT_DEFINABLE:
+                # ignore NOT_DEFINABLE values
+                continue
+            if cur_val is not None:
+                return True
+        return False
 
     def _fill_missing_values_with_not_definables(
             self,
