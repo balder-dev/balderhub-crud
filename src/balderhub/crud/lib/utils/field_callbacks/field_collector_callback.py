@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Callable
 from abc import ABC, abstractmethod
 
 from balderhub.data.lib.scenario_features.abstract_data_item_related_feature import AbstractDataItemRelatedFeature
@@ -11,6 +11,10 @@ class FieldCollectorCallback(BaseFieldCallback, ABC):
     """
     Specific data item field callback for collecting the value of a specific field
     """
+
+    def __init__(self, *args, type_convert_cb: Callable[[Any], Any] = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._type_convert_cb = type_convert_cb
 
     # pylint: disable=arguments-differ
     def execute(
@@ -31,12 +35,15 @@ class FieldCollectorCallback(BaseFieldCallback, ABC):
         :return: the collected field value
         """
         abs_field_name = LookupFieldString(abs_field_name)
-        return self._collect_field_value(
+        result = self._collect_field_value(
             feature=feature,
             abs_field_name=abs_field_name,
             element_object=element_object,
             already_collected_data=already_collected_data
         )
+        if self._type_convert_cb:
+            return self._type_convert_cb(result)
+        return result
 
     @abstractmethod
     def _collect_field_value(
