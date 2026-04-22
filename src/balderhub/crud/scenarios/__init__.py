@@ -3,7 +3,7 @@ from .scenario_single_create import ScenarioSingleCreate
 from .scenario_single_read import ScenarioSingleRead
 from .scenario_single_update import ScenarioSingleUpdate
 
-# TODO also add all Triangle versions
+from .scenario_triangle_single_update import ScenarioTriangleSingleUpdate
 from .scenario_triangle_single_create import ScenarioTriangleSingleCreate
 
 __all__ = [
@@ -12,5 +12,6 @@ __all__ = [
     'ScenarioSingleCreate',
     'ScenarioSingleRead',
     'ScenarioSingleUpdate',
+    'ScenarioTriangleSingleUpdate',
     'ScenarioTriangleSingleCreate',
 ]
