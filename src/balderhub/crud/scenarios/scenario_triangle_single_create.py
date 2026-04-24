@@ -95,6 +95,7 @@ class ScenarioTriangleSingleCreate(balder.Scenario):
         This test tries to create a new invalid data item in the device-under-test and makes sure that it was not
         created. It also validates that the correct error messages were returned by the system and that the previous
         existing data does not change during this failed-creation.
+
         :param invalid_example: the parametrized invalid example (provided by
                                 :meth:`ExampleDataProviderFeature.get_invalid_examples`)
         """
