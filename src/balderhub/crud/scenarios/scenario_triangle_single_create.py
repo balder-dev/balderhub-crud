@@ -128,13 +128,13 @@ class ScenarioTriangleSingleCreate(balder.Scenario):
         assert all_items_after.compare(all_items_before), "existing data has changed"
 
     @balder.parametrize_by_feature(
-        'without_optional_field', (Creator, 'creator', 'get_optional_fields')
+        'without_optional_field', (Creator, 'creator', 'resolved_optional_fields')
     )
     def test_create_valid_without_single_optional_field(self, without_optional_field: str):
         """
         This test creates a new data item in the device-under-test and validates its creation. It uses the first valid
         example provided by :meth:`ExampleDataProviderFeature.get_valid_examples`, but without one optional field given
-        by `without_optional_field` (provided with :meth:`SingleDataCreatorFeature.get_optional_fields`. This is
+        by `without_optional_field` (provided with :meth:`SingleDataCreatorFeature.resolved_optional_fields`. This is
         expected to run successfully without any error.
         The test checks that the data items before and after the creation also don't change (all fillable and
         collectable data fields were checked here).
@@ -152,7 +152,7 @@ class ScenarioTriangleSingleCreate(balder.Scenario):
             At the moment this feature does not validate the optional field (the value will be set to `NOT_DEFINABLE`).
 
         :param without_optional_field: parametrized optional field name (provided by
-                                       :meth:`SingleDataCreatorFeature.get_optional_fields`)
+                                       :meth:`SingleDataCreatorFeature.resolved_optional_fields`)
         """
         valid_example = self.Creator.example.get_valid_examples()[0]
 
