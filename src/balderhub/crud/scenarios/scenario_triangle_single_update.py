@@ -96,15 +96,15 @@ class ScenarioTriangleSingleUpdate(balder.Scenario):
 
 
     @balder.parametrize_by_feature(
-        'unset_optional_field', (Updater, 'updater', 'get_optional_fields')
+        'unset_optional_field', (Updater, 'updater', 'resolved_optional_fields')
     )
     def test_unset_optional_field(self, unset_optional_field):
         """
         This test tries to UNSET an existing field that is marked as optional. It will be auto parametrized and
-        executed for all optional fields (provided by :meth:`SingleUpdaterFeature.get_optional_fields`).
+        executed for all optional fields (provided by :meth:`SingleUpdaterFeature.resolved_optional_fields`).
 
         :param unset_optional_field: parametrized optional field name (provided by
-                                       :meth:`SingleUpdaterFeature.get_optional_fields`)
+                                       :meth:`SingleUpdaterFeature.resolved_optional_fields`)
         """
         pot_data = self.Updater.single_example.get_first_valid_example().data_item
         self.Reader.list_reader.load()
