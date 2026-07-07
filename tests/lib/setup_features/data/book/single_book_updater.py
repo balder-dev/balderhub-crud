@@ -35,8 +35,6 @@ class SingleBookUpdator(SingleUpdaterFeature):
     def get_non_fillable_fields(self) -> List[str]:
         return [
             'id',
-            *BookDataItem.get_all_fields_for('author', except_fields=['id']),
-            *BookDataItem.get_all_fields_for('category', except_fields=['id']),
         ]
 
     def get_element_container(self) -> dict[str, Any]:
@@ -45,13 +43,8 @@ class SingleBookUpdator(SingleUpdaterFeature):
     def item_mapping(self) -> Dict[str, FieldFillerCallback]:
         return {
             'title': InjectIntoDictCallback(),
-            'author': Nested(
-                id=InjectIntoDictCallback()
-            ),
-            'category': Nested(
-                id=InjectIntoDictCallback(),
-                _unset_callback=InjectIntoDictCallback()
-            )
+            'author': InjectIntoDictCallback(),
+            'category': InjectIntoDictCallback()
         }
 
     def save(self):
