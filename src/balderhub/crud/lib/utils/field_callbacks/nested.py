@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import Any, Iterable
+import copy
 
 from balderhub.data.lib.utils import NOT_DEFINABLE, SingleDataItem, LookupFieldString
 from balderhub.data.lib.scenario_features.abstract_data_item_related_feature import AbstractDataItemRelatedFeature
@@ -46,6 +47,13 @@ class Nested(BaseFieldCallback):
         if self._inner_callback_type is None:
             raise TypeError(f'it is not allowed to provide `{Nested.__name__}` only or empty `{Nested.__name__}` '
                             f'definitions')
+
+    @property
+    def inner_item_mapping(self):
+        """
+        :return: a copy of the raw inner specified data
+        """
+        return copy.copy(self._nested_data)
 
     @property
     def inner_callback_type(self) -> type[BaseFieldCallback]:
