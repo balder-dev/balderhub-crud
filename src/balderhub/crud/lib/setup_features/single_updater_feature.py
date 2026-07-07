@@ -1,11 +1,13 @@
 from typing import TypeVar, Any
 
-from balderhub.data.lib.utils import NOT_DEFINABLE
+from balderhub.data.lib.utils import NOT_DEFINABLE, LookupFieldString
 from balderhub.data.lib.utils.functions import full_dictionary_is_not_definable
 
 from balderhub.crud.lib import scenario_features
 from balderhub.crud.lib.utils.exceptions import CallbackExecutionError
 from balderhub.crud.lib.utils.field_callbacks import FieldFillerCallback
+from balderhub.crud.lib.utils.functions import validate_existence_of_item_mapping, \
+    validate_completeness_of_item_mapping, get_flatten_fields_from_item_mapping
 
 ElementContainerTypeT = TypeVar('ElementContainerTypeT')
 
@@ -14,6 +16,19 @@ class SingleUpdaterFeature(scenario_features.SingleUpdaterFeature):
     """
     Setup update feature with field callback mapping
     """
+
+    @property
+    def resolved_fillable_fields(self) -> list[LookupFieldString]:
+        item_mapping = self.item_mapping()
+        validate_existence_of_item_mapping(item_mapping, self.data_item_type)
+        missing_fields = validate_completeness_of_item_mapping(
+            item_mapping=item_mapping,
+            for_data_item_type=self.data_item_type,
+            resolved_except_fields=self.resolved_non_fillable_fields
+        )
+        if missing_fields:
+            raise KeyError(f'missing callbacks for fields {missing_fields} within {self.__class__.__name__}')
+        return list(get_flatten_fields_from_item_mapping(item_mapping))
 
     def item_mapping(self) -> dict[str, FieldFillerCallback]:
         """returns a dictionary with the dataclass field name as key and its configuration as value"""
