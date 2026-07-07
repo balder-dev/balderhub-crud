@@ -60,7 +60,7 @@ class ExampleCreateBookProvider(balderhub.crud.lib.scenario_features.SingleCreat
                 name='Book without an author',
                 data_item=data_items.BookDataItem(id=NOT_DEFINABLE, title='The Hobbit', author=NOT_DEFINABLE, category=category),
                 expected_response_messages=ResponseMessageList(
-                    [ResponseMessage(text="DutSimulator.add_book() missing 1 required positional argument: 'author__id'")]
+                    [ResponseMessage(text="DutSimulator.add_book() missing 1 required positional argument: 'author'")]
                 )
             ),
             self.NamedExample(

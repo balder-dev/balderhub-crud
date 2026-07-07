@@ -2,12 +2,13 @@ from __future__ import annotations
 from typing import Any
 
 import balderhub.data
-from balderhub.data.lib.utils import ResponseMessageList, ResponseMessage
+from balderhub.data.lib.utils import ResponseMessageList, ResponseMessage, NOT_DEFINABLE
 import balderhub.crud.lib.scenario_features
 
 from balderhub.crud.lib.utils import UNSET
 
 from tests.lib.utils import data_items
+from tests.lib.utils.data_items import AuthorDataItem, BookCategoryDataItem
 
 
 @balderhub.data.register_for_data_item(data_items.BookDataItem)
@@ -25,22 +26,22 @@ class ExampleUpdateBookFieldProvider(balderhub.crud.lib.scenario_features.Single
                     new_field_value='Hobbit'
                 )
             ]
-        if field == 'author__id':
+        if field == 'author':
             return [
                 self.NamedExample(
                     name="Changed Author",
                     data_item=self.read_example.get_first_valid_example().data_item,
                     field_name=field,
-                    new_field_value=3
+                    new_field_value=AuthorDataItem(id=3, first_name=NOT_DEFINABLE, last_name=NOT_DEFINABLE),
                 )
             ]
-        if field == 'category__id':
+        if field == 'category':
             return [
                 self.NamedExample(
                     name="Changed Category",
                     data_item=self.read_example.get_first_valid_example().data_item,
                     field_name=field,
-                    new_field_value=3
+                    new_field_value=BookCategoryDataItem(id=3, name=NOT_DEFINABLE),
                 ),
             ]
         return []
@@ -59,7 +60,7 @@ class ExampleUpdateBookFieldProvider(balderhub.crud.lib.scenario_features.Single
                 )
             ]
 
-        if field == 'author__id':
+        if field == 'author':
             return [
                 self.NamedExample(
                     name="Empty Author",
@@ -74,20 +75,20 @@ class ExampleUpdateBookFieldProvider(balderhub.crud.lib.scenario_features.Single
                     name='Author that does not exist',
                     data_item=self.read_example.get_first_valid_example().data_item,
                     field_name=field,
-                    new_field_value=9999999,
+                    new_field_value=dict(id=9999999),
                     expected_response_messages=ResponseMessageList(
                         [ResponseMessage(text='The author is not known - you need to create it first')]
                     )
                 ),
             ]
 
-        if field == 'category__id':
+        if field == 'category':
             return [
                 self.NamedExample(
                     name="Category that does not exist",
                     data_item=self.read_example.get_first_valid_example().data_item,
                     field_name=field,
-                    new_field_value=9999999,
+                    new_field_value=dict(id=9999999),
                     expected_response_messages=ResponseMessageList(
                         [ResponseMessage(text="The category is not known - you need to create it first")]
                     )

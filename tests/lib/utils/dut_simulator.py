@@ -106,21 +106,36 @@ class DutSimulator:
 
         del self._all_categories[category_id]
 
-    def add_book(self, title: str, author__id: int, category__id: Optional[int] = None):
+    def add_book(self, title: str, author: dict, category: Optional[dict] = None):
         if not self._is_non_empty_string(title):
             raise ValueError('The book needs a title.')
-        if author__id in [None, NOT_DEFINABLE, UNSET]:
+
+        if author in [None, NOT_DEFINABLE, UNSET]:
             raise ValueError('The book needs an author.')
-        if author__id not in self._all_authors.keys():
+        if not isinstance(author, dict):
+            raise TypeError('The author needs to be a dict.')
+        if 'id' not in author.keys():
+            raise TypeError('The author needs to have a key `id`.')
+        if author['id'] not in self._all_authors.keys():
             raise ValueError('The author is not known - you need to create it first')
-        if category__id is not None and category__id not in [NOT_DEFINABLE, UNSET]:
-            if category__id not in self._all_categories.keys():
+
+        if category is not None and category not in [NOT_DEFINABLE, UNSET]:
+            if not isinstance(category, dict):
+                raise TypeError('The category needs to be a dict.')
+            if 'id' not in category.keys():
+                raise TypeError('The category needs to have a key `id`.')
+            if category['id'] not in self._all_categories.keys():
                 raise ValueError('The category is not known - you need to create it first')
-        if category__id == UNSET:
-            category__id = None
+        if category == UNSET:
+            category = None
 
         new_id = 1 if len(self._all_books) == 0 else max(self._all_books.keys()) + 1
-        self._all_books[new_id] = self.Book(id=new_id, title=title, author__id=author__id, category__id=category__id)
+        self._all_books[new_id] = self.Book(
+            id=new_id,
+            title=title,
+            author__id=author['id'],
+            category__id=category['id'] if category else None
+        )
 
     def get_book(self, by_id: int) -> Book:
         if by_id not in self._all_books.keys():
@@ -132,26 +147,39 @@ class DutSimulator:
 
         if 'title' in data_to_update and not self._is_non_empty_string(data_to_update['title']):
             raise ValueError('The book needs a title.')
-        if 'author__id' in data_to_update:
-            if data_to_update['author__id'] in [None, NOT_DEFINABLE, UNSET]:
+        if 'author' in data_to_update:
+            if data_to_update['author'] in [None, NOT_DEFINABLE, UNSET]:
                 raise ValueError('The book needs an author.')
-            if data_to_update['author__id'] not in self._all_authors.keys():
+            if not isinstance(data_to_update['author'], dict):
+                raise TypeError('Author needs to be provided as dictionary')
+            if data_to_update['author']['id'] not in self._all_authors.keys():
                 raise ValueError('The author is not known - you need to create it first')
-        if 'category__id' in data_to_update:
-            category_id = data_to_update['category__id']
+        if 'category' in data_to_update:
+            category = data_to_update['category']
 
-            if category_id is not None and category_id not in [NOT_DEFINABLE, UNSET]:
-                if category_id not in self._all_categories.keys():
+            if category is not None and category not in [NOT_DEFINABLE, UNSET]:
+                if not isinstance(category, dict):
+                    raise TypeError('The category needs to be a dict.')
+                if 'id' not in category.keys():
+                    raise TypeError('The category needs to have a key `id`.')
+                if category['id'] not in self._all_categories.keys():
                     raise ValueError('The category is not known - you need to create it first')
-            if category_id == UNSET:
-                data_to_update['category__id'] = None
+            if category == UNSET:
+                data_to_update['category'] = None
 
+        cleaned_data_to_update = {}
         for cur_key in data_to_update.keys():
-            if not cur_key in ['title', 'author__id', 'category__id']:
+            if cur_key == 'title':
+                cleaned_data_to_update[cur_key] = data_to_update[cur_key]
+            elif cur_key  == 'author':
+                cleaned_data_to_update["author__id"] = data_to_update[cur_key]['id']
+            elif cur_key == 'category':
+                cleaned_data_to_update["category__id"] = data_to_update[cur_key]['id'] if data_to_update[cur_key] else None
+            else:
                 raise KeyError(f'unknown key `{cur_key}`')
 
-        for cur_field in data_to_update:
-            setattr(book, cur_field, data_to_update[cur_field])
+        for cur_field in cleaned_data_to_update:
+            setattr(book, cur_field, cleaned_data_to_update[cur_field])
 
     def delete_book(self, book_id: int) -> None:
         del self._all_categories[book_id]
